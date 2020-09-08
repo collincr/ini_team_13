@@ -1,0 +1,21 @@
+Directory Identifier: GRAVCD-calif
+Directory Title: Gravity Data for California and Southern Nevada
+Principal Investigator: David B. Snyder
+Contributing Organization: U.S. Geological Survey
+                           Geologic Division
+                           Geophysics Branch
+                           345 Middlefield Road, MS 89
+                           Menlo Park, CA 94025
+
+Summary: The gravity data (88,514 records) were compiled largely 
+from a state-wide regional gravity study program organized by the 
+California Division of Mines and Geology in cooperation with the 
+U.S. Geological Survey in Menlo Park, California.  The data base 
+was received in February 1983. Principal gravity parameters 
+include Free-air Anomalies and Simple Bouguer Anomalies (no 
+terrain correction applied).  The observed gravity values are 
+referenced to the International Gravity Standardization Net 1971 
+(IGSN 71).  The gravity anomaly computation uses the Geodetic 
+Reference System 1967 (GRS 67) theoretical gravity formula.  The 
+data are randomly distributed within the boundaries of California 
+with a few stations in Southern Nevada.

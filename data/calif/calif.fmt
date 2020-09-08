@@ -1,0 +1,36 @@
+ASCII_input_file_header_separate "Geovu Header"
+create_format_from_data_file 0 0 char 0
+
+ASCII_data "CALIF ASCII data format"
+station_id 1 8 char 0
+latitude_deg 10 11 short 0
+latitude_min 12 15 short 2
+longitude_deg 16 19 short 0
+longitude_min 20 23 short 2
+sea_level_elev_ft 24 29 long 1
+obs_grav 30 36 long 2
+accuracy_code 37 40 char 0
+Free_air_anom 41 46 long 2
+Bouguer_anom_simp 47 52 long 2
+terr_corr_inner 53 57 long 2
+terr_corr_total 58 62 long 2
+Hammer_zone 63 63 char 0
+Bouguer_anom_267 64 69 long 2
+isostatic_anom 70 75 long 2
+IGSN71_conv_factor 76 80 char 0
+
+binary_data "CALIF binary data format"
+longitude 1 4 long 5
+latitude 5 8 long 5
+sea_level_elev_m 9 12 long 2
+obs_grav 13 16 long 2
+Free_air_anom 17 20 long 2
+Bouguer_anom_267 21 24 long 2
+Bouguer_anom_simp 25 28 long 2
+isostatic_anom 29 32 long 2
+terr_corr_inner 33 36 long 2
+terr_corr_total 37 40 long 2
+IGSN71_conv_factor 41 45 char 0
+Hammer_zone 46 46 char 0
+accuracy_code 47 50 char 0
+station_id 51 58 char 0
