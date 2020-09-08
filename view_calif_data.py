@@ -98,7 +98,7 @@ gdf.to_file("data/geojson/calif_nev_ncei_grav.geojson", driver="GeoJSON")
 fig, ax = plt.subplots(figsize=(12,12))
 ax.scatter(df["longitude"], df["latitude"], c=df["isostatic_anom"], s=0.8)
 ax.set_xlabel("Longitude")
-ax.set_ylim("Latitude")
+ax.set_ylabel("Latitude")
 ax.set_aspect("equal")
 
 # Save to file
