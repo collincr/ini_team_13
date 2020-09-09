@@ -124,7 +124,7 @@ if __name__ == "__main__":
     
     gdf = gpd.read_file("../data/geojson/calif_nev_ncei_grav.geojson")
     
-    stations_in_list = [row for ix, row in gdf.iterrows() if row["station_id"].strip() in stations_list]
+    stations_in_list = [row for ix, row in gdf.iterrows() if row["station_id"] in stations_list]
     gdf_subset = pd.concat(stations_in_list, axis=0)
 
     fig, ax = plt.subplots()
