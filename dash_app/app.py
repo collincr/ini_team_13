@@ -17,7 +17,15 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 # assume you have a "long-form" data frame
 # see https://plotly.com/python/px-arguments/ for more options
-stations = pd.read_csv("data/calif_nev_ncei_grav.csv")
+stations = pd.read_csv("data/calif_nev_ncei_grav.csv").sort_values('isostatic_anom', ascending=False)
+
+df_task2 = pd.DataFrame(columns=['latitude', 'elevation', 'gravity'])
+last_clicks = 0
+
+df_task4 = stations
+station_num = df_task4.shape[0]
+remain_num = [i * 10 for i in list(range(int(station_num / 10)))]
+df_task4 = df_task4.take(remain_num)
 
 # using px.scatter_mapbox
 # fig = px.scatter_mapbox(stations, lat="latitude", lon="longitude", color="isostatic_anom", hover_name="station_id", hover_data=["isostatic_anom"], zoom=3)
@@ -46,6 +54,8 @@ app.layout = html.Div(children=[
         value='scatterplot',
     ),
 
+    html.Button('Clear transect data', id='button-transect', n_clicks=0),
+
     # map
     dcc.Graph(
         id='map',
@@ -53,9 +63,29 @@ app.layout = html.Div(children=[
 
     # transect scatter plot
     dcc.Graph(
-        id='transect',
-        className="six columns",
+        id='transect-gravity'
+        #className="six columns",
     ),
+
+    # transect scatter plot
+    dcc.Graph(
+        id='transect-elevation'
+        #className="six columns",
+    ),
+
+    dcc.Graph(
+        id='task-4',
+        figure={
+            'data': [{
+                'x': list(range(df_task4.shape[0])),
+                'y': df_task4.isostatic_anom,
+                'type': 'bar'
+            }],
+            'layout': {
+                'bargap': 0
+            }
+        }
+    )
 ])
 
 
@@ -78,7 +108,7 @@ def update_figure(value):
                 showscale=True,
             ),
             # text=[stations.isostatic_anom], # hover data, cannot add more...
-            customdata=list(zip(stations.isostatic_anom, stations.station_id)),
+            customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
             hovertemplate="latitude: %{lat}<br>"
                 "longitude: %{lon}<br>"
                 "value: %{customdata[0]}<br>"
@@ -91,7 +121,7 @@ def update_figure(value):
             z=stations.isostatic_anom, 
             radius=10,
             colorscale='spectral_r',
-            customdata=list(zip(stations.isostatic_anom, stations.station_id)),
+            customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
             hovertemplate="latitude: %{lat}<br>"
                 "longitude: %{lon}<br>"
                 "value: %{customdata[0]}<br>"
@@ -114,18 +144,66 @@ def update_figure(value):
     )
     return fig
 
-#update the transect
-@app.callback(
-    Output('transect', 'figure'),
-    [Input('map', 'clickData')])
-def update_transect(clickData):
-    fig = px.scatter(title="Transect")
+#update the charts
+@app.callback([
+    Output('transect-gravity', 'figure'),
+    Output('transect-elevation', 'figure'),
+    Output('task-4', 'figure')],
+    [Input('map', 'clickData'),
+     Input('button-transect', 'n_clicks')])
+def update_charts(clickData, clicks):
+    # Update transect
+    global df_task2, last_clicks
+    fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
+    fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(mode="lines+markers")
+    if clicks != last_clicks:
+        last_clicks = clicks
+        df_task2 = pd.DataFrame(columns=['latitude', 'elevation', 'gravity'])
+        fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(
+            mode="lines+markers")
+        fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(
+            mode="lines+markers")
+        fig1.update_layout(transition_duration=500)
+        fig2.update_layout(transition_duration=500)
+    elif clickData is not None:
+        df_task2 = df_task2.append({'latitude': clickData['points'][0]['lat'], 'elevation': clickData['points'][0]['customdata'][2],
+                         'gravity': clickData['points'][0]['customdata'][0]}, ignore_index=True)
+        df_task2 = df_task2.sort_values('latitude').reset_index(drop=True)
+        fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
+        fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(mode="lines+markers")
+        fig1.update_layout(transition_duration=500)
+        fig2.update_layout(transition_duration=500)
+    fig1.update(layout=dict(title=dict(x=0.5)))
+    fig2.update(layout=dict(title=dict(x=0.5)))
+
+    # Update bar chart
+    fig3 = px.bar(x=list(range(df_task4.shape[0])), y=df_task4.isostatic_anom)
+    fig3.update_layout(bargap=0)
+
     if clickData is not None:
-        station = clickData['points'][0]['customdata'][0]
-        fig = px.scatter(x=[1], y=[station], title="Transect")
-        fig.update_layout(transition_duration=500)
-    fig.update(layout=dict(title=dict(x=0.5)))
-    return fig
+        index = stations.index[stations['station_id'] == clickData['points'][0]['customdata'][1]].tolist()[0]
+        x_center = stations.index.get_loc(index) / (1.0 * stations.shape[0]) * df_task4.shape[0]
+        fig3.update_layout(
+                           shapes=[
+                               dict(
+                                type="rect",
+                                # x-reference is assigned to the x-values
+                                xref="x",
+                                # y-reference is assigned to the plot paper [0,1]
+                                yref="y",
+                                x0=x_center - 50,
+                                y0=0,
+                                x1=x_center + 50,
+                                y1=clickData['points'][0]['customdata'][0],
+                                fillcolor="gold",
+                                opacity=0.9,
+                                layer="above",
+                                line_width=0,
+                            )]
+        )
+
+
+    return fig1, fig2, fig3
 
 if __name__ == '__main__':
     app.run_server(debug=True)
