@@ -29,6 +29,24 @@ df_task4 = df_task4.take(remain_num)
 
 mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2xkb21kIn0.EfyVLEhdszs_Yzdz86hXSA"
 
+intro_text = """
+**Intro**
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Amet luctus venenatis lectus magna fringilla urna porttitor rhoncus. Enim nulla aliquet porttitor lacus luctus accumsan tortor posuere. Viverra mauris in aliquam sem fringilla ut morbi tincidunt augue. Mi proin sed libero enim sed faucibus. Consequat mauris nunc congue nisi vitae suscipit tellus mauris a. Lacus vel facilisis volutpat est velit egestas dui id ornare. Elit ullamcorper dignissim cras tincidunt lobortis feugiat. Suscipit tellus mauris a diam maecenas. Ornare arcu dui vivamus arcu felis bibendum ut. Odio morbi quis commodo odio. Et malesuada fames ac turpis egestas maecenas pharetra.
+"""
+
+transect_intro_text = """
+**Transect**
+
+Some introduction to transect...
+"""
+
+task4_intro_text = """
+**Distribution and ranking of gravity anomaly values**
+
+Some introduction to task4...
+"""
+
 # title
 def title():
     return html.H3(
@@ -36,10 +54,30 @@ def title():
         children='Geospatial Data Visualization for Land Gravity Surveys',
     )
 
+# main row
+def main_row():
+    return html.Div([
+        html.Div([
+            intro(),
+            html.Hr(),
+            layer_selection_radio_group(),
+            main_map()], 
+            id="main-left", className="eight columns"), 
+        html.Div([
+            transect_intro(),
+            dcc.Graph(id='transect-gravity', className="transect-graph"),
+            dcc.Graph(id='transect-elevation', className="transect-graph")], 
+            id="main-right", className="four columns"),
+        ], id="main-row")
+
+# intro
+def intro():
+    return html.Div(id="intro-text", children=dcc.Markdown(intro_text))
+
 # layer selection radio buttons
 def layer_selection_radio_group():
     return html.Div(children=[
-        html.Label('Choose different visualization'), 
+        html.P('Select visualization type', className="title"), 
         dcc.RadioItems(
             id="map-type",
             options=[
@@ -50,8 +88,7 @@ def layer_selection_radio_group():
             labelStyle={"display": "inline-block"},
             value='scatterplot',
         ),
-        html.Button('Clear transect data', id='button-transect', n_clicks=0),
-    ])
+    ], id="radio-group")
 
 # the main map
 def main_map():
@@ -59,16 +96,18 @@ def main_map():
         id='map',
     )
 
-# display two different transects side by side
-def transect_row():
+# transect intro
+def transect_intro():
     return html.Div(children=[
-        dcc.Graph(id='transect-gravity',className="six columns"),
-        dcc.Graph(id='transect-elevation',className="six columns"),
-    ], id='transect-row')
+        html.Div(id="transect-intro-text", children=dcc.Markdown(transect_intro_text)),
+        html.Button('Clear transect data', id='button-transect', n_clicks=0),
+    ], id="transect-intro")
 
 # task4
 def task4_row():
-    return html.Div(dcc.Graph(
+    return html.Div([
+        html.Div(id="task4-intro-text", children=dcc.Markdown(task4_intro_text)),
+        dcc.Graph(
         id='task-4',
         figure={
             'data': [{
@@ -80,7 +119,7 @@ def task4_row():
                 'bargap': 0
             }
         }
-    ), id='task4')
+    )], id='task4-section')
 
 # create the scatter plot layer
 def create_scatter_plot():
@@ -98,7 +137,7 @@ def create_scatter_plot():
         hovertemplate="latitude: %{lat}<br>"
             "longitude: %{lon}<br>"
             "value: %{customdata[0]}<br>"
-            "station id: %{customdata[1]}",
+            "station id: %{customdata[1]}<extra></extra>",
     ))
 
 # create the density heatmap layer
@@ -113,7 +152,7 @@ def create_density_heatmap():
         hovertemplate="latitude: %{lat}<br>"
             "longitude: %{lon}<br>"
             "value: %{customdata[0]}<br>"
-            "station id: %{customdata[1]}",
+            "station id: %{customdata[1]}<extra></extra>",
     ))
 
 # create the image overlay layer
@@ -132,9 +171,8 @@ def create_image_overlay():
 # main layout of the application
 app.layout = html.Div(children=[
     title(),
-    layer_selection_radio_group(),
-    main_map(),
-    transect_row(),
+    html.Hr(),
+    main_row(),
     task4_row(),
 ])
 
@@ -175,6 +213,15 @@ def update_figure(value):
     [Input('map', 'clickData'),
      Input('button-transect', 'n_clicks')])
 def update_charts(clickData, clicks):
+    layout = dict(
+        autosize=True,
+        title=dict(x=0.5),
+        margin=dict(l=0, r=0, b=0, t=40),
+        # paper_bgcolor="LightSteelBlue",
+        # plot_bgcolor="#e6ecf5",
+        height=300
+    )
+
     # Update transect
     global df_task2, last_clicks
     fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
@@ -186,18 +233,18 @@ def update_charts(clickData, clicks):
             mode="lines+markers")
         fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(
             mode="lines+markers")
-        fig1.update_layout(transition_duration=500)
-        fig2.update_layout(transition_duration=500)
+        # fig1.update_layout(transition_duration=500)
+        # fig2.update_layout(transition_duration=500)
     elif clickData is not None:
         df_task2 = df_task2.append({'latitude': clickData['points'][0]['lat'], 'elevation': clickData['points'][0]['customdata'][2],
                          'gravity': clickData['points'][0]['customdata'][0]}, ignore_index=True)
         df_task2 = df_task2.sort_values('latitude').reset_index(drop=True)
         fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
         fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(mode="lines+markers")
-        fig1.update_layout(transition_duration=500)
-        fig2.update_layout(transition_duration=500)
-    fig1.update(layout=dict(title=dict(x=0.5)))
-    fig2.update(layout=dict(title=dict(x=0.5)))
+        # fig1.update_layout(transition_duration=500)
+        # fig2.update_layout(transition_duration=500)
+    fig1.update(layout=layout)
+    fig2.update(layout=layout)
 
     # Update bar chart
     fig3 = px.bar(x=list(range(df_task4.shape[0])), y=df_task4.isostatic_anom)

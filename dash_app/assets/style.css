@@ -2,12 +2,35 @@ body {
     margin: 20px;
 }
 
-#transect-row::after {
+p.title {
+    font-weight: bold;
+    margin: 10px 0px;
+}
+
+#main-row::after {
     content: "";
     clear: both;
     display: block;
 }
 
-#button-transect {
+#radio-group {
     margin-bottom: 10px;
+}
+
+#button-transect {
+    margin: 10px 0;
+}
+
+#intro-text p {
+    font-weight: normal;
+    text-align: justify;
+    margin-right: 20px;
+}
+
+#task4-section {
+    margin-top: 20px;
+}
+
+.transect-graph {
+    margin: 20px 0;
 }
