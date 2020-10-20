@@ -1,0 +1,13 @@
+body {
+    margin: 20px;
+}
+
+#transect-row::after {
+    content: "";
+    clear: both;
+    display: block;
+}
+
+#button-transect {
+    margin-bottom: 10px;
+}
