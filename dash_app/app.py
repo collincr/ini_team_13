@@ -276,4 +276,4 @@ def update_charts(clickData, clicks):
     return fig1, fig2, fig3
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(host='0.0.0.0', debug=True)
