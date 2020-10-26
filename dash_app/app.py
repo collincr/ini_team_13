@@ -16,8 +16,10 @@ from image_overlay_utils import get_image, get_boundary
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app.title = "Geospatial Data Visualization for Land Gravity Surveys"
 
 stations = pd.read_csv("data/calif_nev_ncei_grav.csv").sort_values('isostatic_anom', ascending=False)
+stations['station_id'] = stations['station_id'].str.strip()
 
 df_task2 = pd.DataFrame(columns=['latitude', 'elevation', 'gravity'])
 last_clicks = 0
@@ -32,7 +34,9 @@ mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2
 intro_text = """
 **Intro**
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Amet luctus venenatis lectus magna fringilla urna porttitor rhoncus. Enim nulla aliquet porttitor lacus luctus accumsan tortor posuere. Viverra mauris in aliquam sem fringilla ut morbi tincidunt augue. Mi proin sed libero enim sed faucibus. Consequat mauris nunc congue nisi vitae suscipit tellus mauris a. Lacus vel facilisis volutpat est velit egestas dui id ornare. Elit ullamcorper dignissim cras tincidunt lobortis feugiat. Suscipit tellus mauris a diam maecenas. Ornare arcu dui vivamus arcu felis bibendum ut. Odio morbi quis commodo odio. Et malesuada fames ac turpis egestas maecenas pharetra.
+This application is an interactive geospacial data visualization tool for you to discover the gravity data in California and Nevada.
+
+You can select different types of visualizations on the map, or, you can click on any points on the map to view the transect and distribution of the data.
 """
 
 transect_intro_text = """
@@ -61,6 +65,7 @@ def main_row():
             intro(),
             html.Hr(),
             layer_selection_radio_group(),
+            # tile_selection_radio_group(),
             main_map()], 
             id="main-left", className="eight columns"), 
         html.Div([
@@ -88,7 +93,24 @@ def layer_selection_radio_group():
             labelStyle={"display": "inline-block"},
             value='scatterplot',
         ),
-    ], id="radio-group")
+    ], className="radio-group")
+
+# tile selection radio buttons (not in use now)
+def tile_selection_radio_group():
+    return html.Div(children=[
+        html.P('Select tile type', className="title"), 
+        dcc.RadioItems(
+            id="tile-type",
+            options=[
+                {"label": "default", "value": "light"},
+                {"label": "open street map", "value": "open-street-map"},
+                {"label": "satellite", "value": "satellite"},
+                {"label": "dark", "value": "carto-darkmatter"},
+            ],
+            labelStyle={"display": "inline-block"},
+            value='light',
+        ),
+    ], className="radio-group")
 
 # the main map
 def main_map():
@@ -134,10 +156,11 @@ def create_scatter_plot():
             showscale=True,
         ),
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
-        hovertemplate="latitude: %{lat}<br>"
-            "longitude: %{lon}<br>"
-            "value: %{customdata[0]}<br>"
-            "station id: %{customdata[1]}<extra></extra>",
+        hovertemplate="Latitude: %{lat}<br>"
+            "Longitude: %{lon}<br>"
+            "Value: %{customdata[0]}<br>"
+            "Station ID: %{customdata[1]}<extra></extra>",
+        name="stations",
     ))
 
 # create the density heatmap layer
@@ -149,22 +172,41 @@ def create_density_heatmap():
         radius=10,
         colorscale='spectral_r',
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
-        hovertemplate="latitude: %{lat}<br>"
-            "longitude: %{lon}<br>"
-            "value: %{customdata[0]}<br>"
-            "station id: %{customdata[1]}<extra></extra>",
+        hovertemplate="Latitude: %{lat}<br>"
+            "Longitude: %{lon}<br>"
+            "Value: %{customdata[0]}<br>"
+            "Station ID: %{customdata[1]}<extra></extra>",
+        name="stations",
     ))
 
 # create the image overlay layer
 def create_image_overlay():
-    fig = px.scatter_mapbox(stations[:1], lat='latitude', lon='longitude', zoom=4, opacity=1)
+    fig = go.Figure(go.Scattermapbox(
+        # uncomment below to show the dots in the map
+        # lat=stations.latitude,
+        # lon=stations.longitude,
+        # mode='markers',
+        # marker=go.scattermapbox.Marker(
+        #     size=4,
+        #     color=stations.isostatic_anom,
+        #     colorscale='spectral_r',
+        #     showscale=True,
+        # ),
+        # customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
+        # hovertemplate="Latitude: %{lat}<br>"
+        #     "Longitude: %{lon}<br>"
+        #     "Value: %{customdata[0]}<br>"
+        #     "Station ID: %{customdata[1]}<extra></extra>",
+        # name="Stations",
+    ))
     fig.update_layout(mapbox_layers = [
         {
             "sourcetype": "image",
             "source": get_image(),
             "coordinates": get_boundary(),
             'opacity': 0.3
-        }]
+        }],
+        # showlegend=True, # let users choose whether to show the dots or not
     )
     return fig
 
@@ -199,7 +241,8 @@ def update_figure(value):
                 lon=-122.06265
             ),
             pitch=0,
-            zoom=5
+            zoom=5,
+            uirevision=True,
         ),
         margin={"r":0,"t":0,"l":0,"b":0},
     )
