@@ -6,6 +6,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
@@ -21,7 +22,11 @@ app.title = "Geospatial Data Visualization for Land Gravity Surveys"
 stations = pd.read_csv("data/calif_nev_ncei_grav.csv").sort_values('isostatic_anom', ascending=False)
 stations['station_id'] = stations['station_id'].str.strip()
 
-df_task2 = pd.DataFrame(columns=['latitude', 'elevation', 'gravity'])
+df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'gravity'])
+gdf = gpd.read_file("data/calif_nev_ncei_grav.geojson")
+gdf = gdf.to_crs('EPSG:2163')
+origin = []
+distance = 0
 last_clicks = 0
 
 df_task4 = stations
@@ -42,7 +47,8 @@ You can select different types of visualizations on the map, or, you can click o
 transect_intro_text = """
 **Transect**
 
-Some introduction to transect...
+These two charts show how gravity and elevation vary along a line. You can select any points on the map and clear the data by clicking the "CLEAR TRANSECT
+DATA" button.
 """
 
 task4_intro_text = """
@@ -276,25 +282,36 @@ def update_charts(clickData, selected_data, clicks):
         height=300
     )
 
-    # Update transect
-    global df_task2, df_task4, last_clicks
-    fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
-    fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(mode="lines+markers")
+    global df_task2, df_task4, last_clicks, origin, distance
+    fig1 = px.line(df_task2, x='distance', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
+    fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
+        mode="lines+markers")
     if clicks != last_clicks:
         last_clicks = clicks
-        df_task2 = pd.DataFrame(columns=['latitude', 'elevation', 'gravity'])
-        fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(
+        df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'gravity'])
+        fig1 = px.line(df_task2, x='distance', y='gravity', title="Transect (gravity)").update_traces(
             mode="lines+markers")
-        fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(
+        fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
             mode="lines+markers")
+        origin = []
+        distance = 0
         # fig1.update_layout(transition_duration=500)
         # fig2.update_layout(transition_duration=500)
     elif clickData is not None:
-        df_task2 = df_task2.append({'latitude': clickData['points'][0]['lat'], 'elevation': clickData['points'][0]['customdata'][2],
-                         'gravity': clickData['points'][0]['customdata'][0]}, ignore_index=True)
-        df_task2 = df_task2.sort_values('latitude').reset_index(drop=True)
-        fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
-        fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(mode="lines+markers")
+        station_id = clickData['points'][0]['customdata'][1]
+        index = stations.index[stations.station_id == station_id].tolist()[0]
+        station = gdf.loc[index]
+        if not origin:
+            origin = station.geometry
+        distance += origin.distance(station.geometry)
+        df_task2 = df_task2.append({'distance': distance, 'elevation': clickData['points'][0]['customdata'][2],
+                                    'gravity': clickData['points'][0]['customdata'][0]}, ignore_index=True)
+        df_task2 = df_task2.sort_values('distance').reset_index(drop=True)
+        fig1 = px.line(df_task2, x='distance', y='gravity', title="Transect (gravity)").update_traces(
+            mode="lines+markers")
+        fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
+            mode="lines+markers")
+        origin = station.geometry
         # fig1.update_layout(transition_duration=500)
         # fig2.update_layout(transition_duration=500)
     fig1.update(layout=layout)
