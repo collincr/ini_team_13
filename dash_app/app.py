@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 import pandas as pd
 from dash.dependencies import Input, Output
 
-from image_overlay_utils import get_image, get_boundary
+from image_overlay_utils import get_image, get_boundary, get_image_from_file
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -202,9 +202,19 @@ def create_image_overlay():
     fig.update_layout(mapbox_layers = [
         {
             "sourcetype": "image",
-            "source": get_image(),
+            "source": get_image_from_file(),
             "coordinates": get_boundary(),
             'opacity': 0.3
+        },
+        {
+            "sourcetype": "vector",
+            "sourcelayer": "County",
+            "type": "line",
+            "opacity": 0.1,
+            "color": "white",
+            "source": [
+                "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+            ]
         }],
         # showlegend=True, # let users choose whether to show the dots or not
     )

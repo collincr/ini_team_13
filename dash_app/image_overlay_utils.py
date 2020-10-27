@@ -12,7 +12,7 @@ from PIL import Image
 
 ### helper functions to calculate the data point to raster images
 def get_max_res(bounds):
-    return max((bounds[1] - bounds[0]) / 1000, 0.001)
+    return max((bounds[1] - bounds[0]) / 5000, 0.0002)
 
 def get_space_coords(x_bounds, y_bounds):
     xres_max = get_max_res(x_bounds)
@@ -32,7 +32,7 @@ def get_image():
     x_bounds=(-123, -121)
     y_bounds=(37, 39)
 
-    gdf = gpd.read_file("data/calif_nev_ncei_grav.geojson")
+    gdf = gpd.read_file("data/ca_nvda_grav.geojson")
 
     gdf_subset = gdf[(gdf["latitude"] > y_bounds[0]) &
                     (gdf["latitude"] < y_bounds[1]) &
@@ -47,10 +47,15 @@ def get_image():
     im = Image.fromarray(np.uint8(cm.Spectral_r(grid_1)*255))
     return im
 
+### get image directly from file
+def get_image_from_file():
+    im = Image.open(r"data/all_cubic_5000_nan_replaced.tif")
+    return im
+
 ### get the boundary of the image
 def get_boundary():
-    df2 = pd.read_csv('data/calif_nev_ncei_grav.csv')
-    cvs2 = ds.Canvas(plot_width=1000, plot_height=1000)
+    df2 = pd.read_csv('data/ca_nvda_grav.csv')
+    cvs2 = ds.Canvas(plot_width=5000, plot_height=5000)
     agg2 = cvs2.points(df2, x='longitude', y='latitude')
 
     coords_lat2, coords_lon2 = agg2.coords['latitude'].values, agg2.coords['longitude'].values
