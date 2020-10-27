@@ -204,7 +204,7 @@ def create_image_overlay():
             "sourcetype": "image",
             "source": get_image_from_file(),
             "coordinates": get_boundary(),
-            'opacity': 0.3
+            'opacity': 0.5
         },
         {
             "sourcetype": "vector",
