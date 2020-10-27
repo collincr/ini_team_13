@@ -264,8 +264,9 @@ def update_figure(value):
     Output('transect-elevation', 'figure'),
     Output('task-4', 'figure')],
     [Input('map', 'clickData'),
+     Input('map', 'selectedData'),
      Input('button-transect', 'n_clicks')])
-def update_charts(clickData, clicks):
+def update_charts(clickData, selected_data, clicks):
     layout = dict(
         autosize=True,
         title=dict(x=0.5),
@@ -276,7 +277,7 @@ def update_charts(clickData, clicks):
     )
 
     # Update transect
-    global df_task2, last_clicks
+    global df_task2, df_task4, last_clicks
     fig1 = px.line(df_task2, x='latitude', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
     fig2 = px.line(df_task2, x='latitude', y='elevation', title="Transect (elevation)").update_traces(mode="lines+markers")
     if clicks != last_clicks:
@@ -299,31 +300,41 @@ def update_charts(clickData, clicks):
     fig1.update(layout=layout)
     fig2.update(layout=layout)
 
+    if selected_data and selected_data['points']:
+        df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
+        for point in selected_data['points']:
+            df_task4 = df_task4.append(
+                {'isostatic_anom': point['customdata'][0], 'station_id': point['customdata'][1]}, ignore_index=True)
+
     # Update bar chart
+    df_task4 = df_task4.sort_values('isostatic_anom', ascending=False)
+    df_task4 = df_task4.reset_index(drop=True)
     fig3 = px.bar(x=list(range(df_task4.shape[0])), y=df_task4.isostatic_anom)
     fig3.update_layout(bargap=0)
 
     if clickData is not None:
-        index = stations.index[stations['station_id'] == clickData['points'][0]['customdata'][1]].tolist()[0]
-        x_center = stations.index.get_loc(index) / (1.0 * stations.shape[0]) * df_task4.shape[0]
-        fig3.update_layout(
-                           shapes=[
-                               dict(
-                                type="rect",
-                                # x-reference is assigned to the x-values
-                                xref="x",
-                                # y-reference is assigned to the plot paper [0,1]
-                                yref="y",
-                                x0=x_center - 50,
-                                y0=0,
-                                x1=x_center + 50,
-                                y1=clickData['points'][0]['customdata'][0],
-                                fillcolor="gold",
-                                opacity=0.9,
-                                layer="above",
-                                line_width=0,
-                            )]
-        )
+        rows = df_task4.index[df_task4['station_id'] == clickData['points'][0]['customdata'][1]].tolist()
+        if rows:
+            location = rows[0]
+            width = df_task4.shape[0] / 20.0
+            fig3.update_layout(
+                               shapes=[
+                                   dict(
+                                    type="rect",
+                                    # x-reference is assigned to the x-values
+                                    xref="x",
+                                    # y-reference is assigned to the plot paper [0,1]
+                                    yref="y",
+                                    x0=location - width,
+                                    y0=0,
+                                    x1=location + width,
+                                    y1=clickData['points'][0]['customdata'][0],
+                                    fillcolor="gold",
+                                    opacity=0.9,
+                                    layer="above",
+                                    line_width=0,
+                                )]
+            )
 
 
     return fig1, fig2, fig3
