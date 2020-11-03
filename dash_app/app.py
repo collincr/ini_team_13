@@ -61,7 +61,10 @@ DATA" button.
 task4_intro_text = """
 **Distribution and ranking of gravity anomaly values**
 
-Some introduction to task4...
+Here you can select multiple stations on the map, and see how one station compares to all the others.
+
+Click one station on the map to highlight it in the graph below.
+
 """
 
 
@@ -80,8 +83,10 @@ def main_row():
             intro(),
             html.Hr(),
             layer_selection_radio_group(),
+
             # tile_selection_radio_group(),
-            main_map()],
+            main_map()
+        ],
             id="main-left", className="eight columns"),
         html.Div([
             transect_intro(),
@@ -112,6 +117,21 @@ def layer_selection_radio_group():
         ),
     ], className="radio-group")
 
+
+# t4
+def t4_selection_radio_group():
+    return html.Div(children=[
+        html.P('How you want to select stations:', className="title"),
+        dcc.RadioItems(
+            id="t4_type",
+            options=[
+                {'label': 'click each station on map', 'value': 0},
+                {'label': 'select box', 'value': 1},
+            ],
+            labelStyle={"display": "inline-block"},
+            value=0,
+        ),
+    ], className="radio-group")
 
 # tile selection radio buttons (not in use now)
 def tile_selection_radio_group():
@@ -150,6 +170,7 @@ def transect_intro():
 def task4_row():
     return html.Div([
         html.Div(id="task4-intro-text", children=dcc.Markdown(task4_intro_text)),
+        t4_selection_radio_group(),
         dcc.Graph(
             id='task-4',
             figure={
@@ -317,9 +338,19 @@ def update_figure(value):
     Output('task-4', 'figure')],
     [Input('map', 'clickData'),
      Input('map', 'selectedData'),
-     Input('button-transect', 'n_clicks')])
-def update_charts(clickData, selected_data, clicks):
-    task4_type = 0
+     Input('button-transect', 'n_clicks'),
+     Input('t4_type', 'value')
+     ])
+def update_charts(clickData, selected_data, clicks, value):
+    # 0 : click, 1 : select box
+    task4_type = value
+
+    # global cur_task4_type
+    # # 0 : click, 1 : select box
+    # if cur_task4_type != value:
+    #     clicks = 0
+    # task4_type = value
+
     layout = dict(
         autosize=True,
         title=dict(x=0.5),
@@ -421,32 +452,6 @@ def update_charts(clickData, selected_data, clicks):
                 fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4', color="station_id",
                               color_discrete_sequence=colors)  # color_discrete_map=m)
 
-
-        # if clickData :
-        #     rows = df_task4.index[df_task4['station_id'] == clickData['points'][0]['customdata'][1]].tolist()
-        #     if rows:
-        #         location = rows[0]
-        #         width = df_task4.shape[0]
-        #         fig3.update_layout(
-        #             shapes=[
-        #                 dict(
-        #                     type="rect",
-        #                     # x-reference is assigned to the x-values
-        #                     xref="x",
-        #                     # y-reference is assigned to the plot paper [0,1]
-        #                     yref="y",
-        #                     x0=location - width,
-        #                     y0=0,
-        #                     x1=location + width,
-        #                     y1=clickData['points'][0]['customdata'][0],
-        #                     fillcolor="gold",
-        #                     opacity=0.9,
-        #                     layer="above",
-        #                     line_width=0,
-        #                 )]
-        #         )
-
-    # if task4_type is 0:
     fig3.update(layout=bar_layout)
 
     return fig1, fig2, fig3
