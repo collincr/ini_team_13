@@ -29,7 +29,7 @@ origin = []
 distance = 0
 last_clicks = 0
 
-df_task4 = stations
+df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
 station_num = df_task4.shape[0]
 remain_num = [i * 10 for i in list(range(int(station_num / 10)))]
 df_task4 = df_task4.take(remain_num)
@@ -57,12 +57,14 @@ task4_intro_text = """
 Some introduction to task4...
 """
 
+
 # title
 def title():
     return html.H3(
         id="title",
         children='Geospatial Data Visualization for Land Gravity Surveys',
     )
+
 
 # main row
 def main_row():
@@ -72,23 +74,25 @@ def main_row():
             html.Hr(),
             layer_selection_radio_group(),
             # tile_selection_radio_group(),
-            main_map()], 
-            id="main-left", className="eight columns"), 
+            main_map()],
+            id="main-left", className="eight columns"),
         html.Div([
             transect_intro(),
             dcc.Graph(id='transect-gravity', className="transect-graph"),
-            dcc.Graph(id='transect-elevation', className="transect-graph")], 
+            dcc.Graph(id='transect-elevation', className="transect-graph")],
             id="main-right", className="four columns"),
-        ], id="main-row")
+    ], id="main-row")
+
 
 # intro
 def intro():
     return html.Div(id="intro-text", children=dcc.Markdown(intro_text))
 
+
 # layer selection radio buttons
 def layer_selection_radio_group():
     return html.Div(children=[
-        html.P('Select visualization type', className="title"), 
+        html.P('Select visualization type', className="title"),
         dcc.RadioItems(
             id="map-type",
             options=[
@@ -101,10 +105,11 @@ def layer_selection_radio_group():
         ),
     ], className="radio-group")
 
+
 # tile selection radio buttons (not in use now)
 def tile_selection_radio_group():
     return html.Div(children=[
-        html.P('Select tile type', className="title"), 
+        html.P('Select tile type', className="title"),
         dcc.RadioItems(
             id="tile-type",
             options=[
@@ -118,11 +123,13 @@ def tile_selection_radio_group():
         ),
     ], className="radio-group")
 
+
 # the main map
 def main_map():
     return dcc.Graph(
         id='map',
     )
+
 
 # transect intro
 def transect_intro():
@@ -131,23 +138,25 @@ def transect_intro():
         html.Button('Clear transect data', id='button-transect', n_clicks=0),
     ], id="transect-intro")
 
+
 # task4
 def task4_row():
     return html.Div([
         html.Div(id="task4-intro-text", children=dcc.Markdown(task4_intro_text)),
         dcc.Graph(
-        id='task-4',
-        figure={
-            'data': [{
-                'x': list(range(df_task4.shape[0])),
-                'y': df_task4.isostatic_anom,
-                'type': 'bar'
-            }],
-            'layout': {
-                'bargap': 0
+            id='task-4',
+            figure={
+                'data': [{
+                    'x': list(range(df_task4.shape[0])),
+                    'y': df_task4.isostatic_anom,
+                    'type': 'bar'
+                }],
+                'layout': {
+                    'bargap': 0
+                }
             }
-        }
-    )], id='task4-section')
+        )], id='task4-section')
+
 
 # create the scatter plot layer
 def create_scatter_plot():
@@ -163,27 +172,29 @@ def create_scatter_plot():
         ),
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
         hovertemplate="Latitude: %{lat}<br>"
-            "Longitude: %{lon}<br>"
-            "Value: %{customdata[0]}<br>"
-            "Station ID: %{customdata[1]}<extra></extra>",
+                      "Longitude: %{lon}<br>"
+                      "Value: %{customdata[0]}<br>"
+                      "Station ID: %{customdata[1]}<extra></extra>",
         name="stations",
     ))
+
 
 # create the density heatmap layer
 def create_density_heatmap():
     return go.Figure(go.Densitymapbox(
-        lat=stations.latitude, 
-        lon=stations.longitude, 
-        z=stations.isostatic_anom, 
+        lat=stations.latitude,
+        lon=stations.longitude,
+        z=stations.isostatic_anom,
         radius=10,
         colorscale='spectral_r',
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
         hovertemplate="Latitude: %{lat}<br>"
-            "Longitude: %{lon}<br>"
-            "Value: %{customdata[0]}<br>"
-            "Station ID: %{customdata[1]}<extra></extra>",
+                      "Longitude: %{lon}<br>"
+                      "Value: %{customdata[0]}<br>"
+                      "Station ID: %{customdata[1]}<extra></extra>",
         name="stations",
     ))
+
 
 # create the image overlay layer
 def create_image_overlay():
@@ -205,7 +216,7 @@ def create_image_overlay():
         #     "Station ID: %{customdata[1]}<extra></extra>",
         # name="Stations",
     ))
-    fig.update_layout(mapbox_layers = [
+    fig.update_layout(mapbox_layers=[
         {
             "sourcetype": "image",
             "source": get_image_from_file(),
@@ -225,6 +236,7 @@ def create_image_overlay():
         # showlegend=True, # let users choose whether to show the dots or not
     )
     return fig
+
 
 # main layout of the application
 app.layout = html.Div(children=[
@@ -260,11 +272,12 @@ def update_figure(value):
             zoom=5,
             uirevision=True,
         ),
-        margin={"r":0,"t":0,"l":0,"b":0},
+        margin={"r": 0, "t": 0, "l": 0, "b": 0},
     )
     return fig
 
-#update the charts
+
+# update the charts
 @app.callback([
     Output('transect-gravity', 'figure'),
     Output('transect-elevation', 'figure'),
@@ -273,6 +286,7 @@ def update_figure(value):
      Input('map', 'selectedData'),
      Input('button-transect', 'n_clicks')])
 def update_charts(clickData, selected_data, clicks):
+    task4_type = 0
     layout = dict(
         autosize=True,
         title=dict(x=0.5),
@@ -282,10 +296,20 @@ def update_charts(clickData, selected_data, clicks):
         height=300
     )
 
+    bar_layout = dict(
+        bargap=0.1,
+        xaxis_type="category"
+    )
+
     global df_task2, df_task4, last_clicks, origin, distance
     fig1 = px.line(df_task2, x='distance', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
     fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
         mode="lines+markers")
+    if task4_type is 0:
+        fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4')
+    elif task4_type is 1:
+        df_task4 = stations
+
     if clicks != last_clicks:
         last_clicks = clicks
         df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'gravity'])
@@ -295,9 +319,12 @@ def update_charts(clickData, selected_data, clicks):
             mode="lines+markers")
         origin = []
         distance = 0
-        # fig1.update_layout(transition_duration=500)
-        # fig2.update_layout(transition_duration=500)
-    elif clickData is not None:
+
+        if task4_type is 0:
+            df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
+            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4')
+
+    elif clickData:
         station_id = clickData['points'][0]['customdata'][1]
         index = stations.index[stations.station_id == station_id].tolist()[0]
         station = gdf.loc[index]
@@ -312,49 +339,85 @@ def update_charts(clickData, selected_data, clicks):
         fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
             mode="lines+markers")
         origin = station.geometry
-        # fig1.update_layout(transition_duration=500)
-        # fig2.update_layout(transition_duration=500)
+
+        if task4_type is 0:
+            station_id = str(clickData['points'][0]['customdata'][1])
+            iso = clickData['points'][0]['customdata'][0]
+
+            if station_id not in df_task4['station_id'].tolist():
+                df_task4 = df_task4.append({'isostatic_anom': iso, 'station_id': station_id}, ignore_index=True)
+            df_task4 = df_task4.sort_values('isostatic_anom', ascending=False)
+            df_task4 = df_task4.reset_index(drop=True)
+
+            colors = ["blue", ] * len(df_task4['station_id'])
+            to_be_change_color = df_task4[df_task4['station_id'] == station_id].index.item()
+            colors[ to_be_change_color ]  = "crimson"
+
+            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4',color="station_id", color_discrete_sequence=colors) #color_discrete_map=m)
+
     fig1.update(layout=layout)
     fig2.update(layout=layout)
 
-    if selected_data and selected_data['points']:
-        df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
-        for point in selected_data['points']:
-            df_task4 = df_task4.append(
-                {'isostatic_anom': point['customdata'][0], 'station_id': point['customdata'][1]}, ignore_index=True)
+    if task4_type is 1:
+        if not selected_data:
+            fig3 = px.bar(x=['a'], y=['a'])
+            return fig1, fig2, fig3
 
-    # Update bar chart
-    df_task4 = df_task4.sort_values('isostatic_anom', ascending=False)
-    df_task4 = df_task4.reset_index(drop=True)
-    fig3 = px.bar(x=list(range(df_task4.shape[0])), y=df_task4.isostatic_anom)
-    fig3.update_layout(bargap=0)
+        df_task4 = stations
+        if selected_data and selected_data['points']:
+            df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
+            for point in selected_data['points']:
+                df_task4 = df_task4.append(
+                    {'isostatic_anom': point['customdata'][0], 'station_id': point['customdata'][1]}, ignore_index=True)
 
-    if clickData is not None:
-        rows = df_task4.index[df_task4['station_id'] == clickData['points'][0]['customdata'][1]].tolist()
-        if rows:
-            location = rows[0]
-            width = df_task4.shape[0] / 20.0
-            fig3.update_layout(
-                               shapes=[
-                                   dict(
-                                    type="rect",
-                                    # x-reference is assigned to the x-values
-                                    xref="x",
-                                    # y-reference is assigned to the plot paper [0,1]
-                                    yref="y",
-                                    x0=location - width,
-                                    y0=0,
-                                    x1=location + width,
-                                    y1=clickData['points'][0]['customdata'][0],
-                                    fillcolor="gold",
-                                    opacity=0.9,
-                                    layer="above",
-                                    line_width=0,
-                                )]
-            )
+        # Update bar chart
+        df_task4 = df_task4.sort_values('isostatic_anom', ascending=False)
+        df_task4 = df_task4.reset_index(drop=True)
+        fig3 = px.bar(x=list(range(df_task4.shape[0])), y=df_task4.isostatic_anom)
+        fig3.update_layout(bargap=0)
 
+
+        if clickData:
+            colors = ["blue", ] * len(df_task4['station_id'])
+            station_id = clickData['points'][0]['customdata'][1]
+
+            if station_id in df_task4['station_id'].tolist():
+                to_be_change_color = df_task4[df_task4['station_id'] == station_id].index.item()
+                colors[to_be_change_color] = "crimson"
+
+                fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4', color="station_id",
+                              color_discrete_sequence=colors)  # color_discrete_map=m)
+
+
+        # if clickData :
+        #     rows = df_task4.index[df_task4['station_id'] == clickData['points'][0]['customdata'][1]].tolist()
+        #     if rows:
+        #         location = rows[0]
+        #         width = df_task4.shape[0]
+        #         fig3.update_layout(
+        #             shapes=[
+        #                 dict(
+        #                     type="rect",
+        #                     # x-reference is assigned to the x-values
+        #                     xref="x",
+        #                     # y-reference is assigned to the plot paper [0,1]
+        #                     yref="y",
+        #                     x0=location - width,
+        #                     y0=0,
+        #                     x1=location + width,
+        #                     y1=clickData['points'][0]['customdata'][0],
+        #                     fillcolor="gold",
+        #                     opacity=0.9,
+        #                     layer="above",
+        #                     line_width=0,
+        #                 )]
+        #         )
+
+    # if task4_type is 0:
+    fig3.update(layout=bar_layout)
 
     return fig1, fig2, fig3
+
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
