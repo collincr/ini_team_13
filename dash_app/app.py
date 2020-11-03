@@ -19,11 +19,11 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Geospatial Data Visualization for Land Gravity Surveys"
 
-stations = pd.read_csv("data/calif_nev_ncei_grav.csv").sort_values('isostatic_anom', ascending=False)
+stations = pd.read_csv("data/ca_nvda_grav.csv").sort_values('isostatic_anom', ascending=False)
 stations['station_id'] = stations['station_id'].str.strip()
 
 df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'gravity'])
-gdf = gpd.read_file("data/calif_nev_ncei_grav.geojson")
+gdf = gpd.read_file("data/ca_nvda_grav.geojson")
 gdf = gdf.to_crs('EPSG:2163')
 origin = []
 distance = 0
@@ -37,11 +37,18 @@ df_task4 = df_task4.take(remain_num)
 mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2xkb21kIn0.EfyVLEhdszs_Yzdz86hXSA"
 
 intro_text = """
-**Intro**
+**Introduction**
 
-This application is an interactive geospacial data visualization tool for you to discover the gravity data in California and Nevada.
+This application is an interactive geospacial data visualization tool for you to discover the gravity anomaly data in California and Nevada.
 
-You can select different types of visualizations on the map, or, you can click on any points on the map to view the transect and distribution of the data.
+Gravity is not the same everywhere on Earth, but changes with many known and measurable factors, such as tidal forces. 
+A sequence of gravity corrections are applied to the original gravity reading and result in various named gravity anomalies. 
+There are mainly four kinds of gravity anomalies: observed gravity anomaly, free air gravity anomaly, Bouguer gravity anomaly, and isostatic gravity anomaly. 
+You can learn more about gravity anomalies from [USGS's publication here](https://pubs.usgs.gov/fs/fs-0239-95/fs-0239-95.pdf).
+
+In this application, you can select different types of visualizations to explore the distribution of isostatic anomaly values and the metadata from the stations.
+In addition, you can interact with the map to view the transect or the distribution of the data according to the instrutions in each section.
+
 """
 
 transect_intro_text = """
@@ -160,7 +167,7 @@ def task4_row():
 
 # create the scatter plot layer
 def create_scatter_plot():
-    return go.Figure(go.Scattermapbox(
+    fig = go.Figure(go.Scattermapbox(
         lat=stations.latitude,
         lon=stations.longitude,
         mode='markers',
@@ -171,29 +178,55 @@ def create_scatter_plot():
             showscale=True,
         ),
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
-        hovertemplate="Latitude: %{lat}<br>"
-                      "Longitude: %{lon}<br>"
-                      "Value: %{customdata[0]}<br>"
-                      "Station ID: %{customdata[1]}<extra></extra>",
+        hovertemplate="Station ID: %{customdata[1]}<br>"
+            "Latitude: %{lat}<br>"
+            "Longitude: %{lon}<br>"
+            "Isostatic Anomaly: %{customdata[0]}<extra></extra>",
         name="stations",
     ))
+    fig.update_layout(mapbox_layers = [
+        {
+            "sourcetype": "vector",
+            "sourcelayer": "County",
+            "type": "line",
+            "opacity": 0.1,
+            "color": "grey",
+            "source": [
+                "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+            ]
+        }],
+    )
+    return fig
 
 
 # create the density heatmap layer
 def create_density_heatmap():
-    return go.Figure(go.Densitymapbox(
-        lat=stations.latitude,
-        lon=stations.longitude,
-        z=stations.isostatic_anom,
+    fig = go.Figure(go.Densitymapbox(
+        lat=stations.latitude, 
+        lon=stations.longitude, 
+        z=stations.isostatic_anom, 
         radius=10,
         colorscale='spectral_r',
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
-        hovertemplate="Latitude: %{lat}<br>"
-                      "Longitude: %{lon}<br>"
-                      "Value: %{customdata[0]}<br>"
-                      "Station ID: %{customdata[1]}<extra></extra>",
+        hovertemplate="Station ID: %{customdata[1]}<br>"
+            "Latitude: %{lat}<br>"
+            "Longitude: %{lon}<br>"
+            "Isostatic Anomaly: %{customdata[0]}<extra></extra>",
         name="stations",
     ))
+    fig.update_layout(mapbox_layers = [
+        {
+            "sourcetype": "vector",
+            "sourcelayer": "County",
+            "type": "line",
+            "opacity": 0.1,
+            "color": "grey",
+            "source": [
+                "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+            ]
+        }],
+    )
+    return fig
 
 
 # create the image overlay layer
@@ -228,7 +261,7 @@ def create_image_overlay():
             "sourcelayer": "County",
             "type": "line",
             "opacity": 0.1,
-            "color": "white",
+            "color": "grey",
             "source": [
                 "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
             ]
