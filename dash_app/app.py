@@ -324,6 +324,7 @@ def update_charts(clickData, selected_data, clicks):
         autosize=True,
         title=dict(x=0.5),
         margin=dict(l=0, r=0, b=0, t=40),
+        xaxis_title=" distance (m)",
         # paper_bgcolor="LightSteelBlue",
         # plot_bgcolor="#e6ecf5",
         height=300
