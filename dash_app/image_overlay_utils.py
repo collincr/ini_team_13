@@ -10,6 +10,8 @@ import plotly.express as px
 
 from PIL import Image
 
+import pickle
+
 ### helper functions to calculate the data point to raster images
 def get_max_res(bounds):
     return max((bounds[1] - bounds[0]) / 5000, 0.0002)
@@ -48,8 +50,13 @@ def get_image():
     return im
 
 ### get image directly from file
-def get_image_from_file():
-    im = Image.open(r"data/all_cubic_5000_nan_replaced.tif")
+def get_ca_raster_image_from_file():
+    im = Image.open(r"data/mask_ca.png")
+    return im
+
+### get image directly from file
+def get_nv_raster_image_from_file():
+    im = Image.open(r"data/mask_nv.png")
     return im
 
 ### get the boundary of the image
@@ -64,3 +71,22 @@ def get_boundary():
                 [coords_lon2[-1], coords_lat2[-1]],
                 [coords_lon2[0], coords_lat2[-1]]]
     return coordinates2
+
+### Get bounary of California state
+def get_ca_boundary():
+    coordinates_ca = []
+
+    with open("coordinates_ca", "rb") as fp:
+        coordinates_ca = pickle.load(fp)
+    
+    return coordinates_ca
+
+
+### Get bounary of Nevada state
+def get_nv_boundary():
+    coordinates_nv = []
+
+    with open("coordinates_nv", "rb") as fp:
+        coordinates_nv = pickle.load(fp)
+    
+    return coordinates_nv

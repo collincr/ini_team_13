@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 import pandas as pd
 from dash.dependencies import Input, Output
 
-from image_overlay_utils import get_image, get_boundary, get_image_from_file
+from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_raster_image_from_file, get_nv_raster_image_from_file
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -273,9 +273,15 @@ def create_image_overlay():
     fig.update_layout(mapbox_layers=[
         {
             "sourcetype": "image",
-            "source": get_image_from_file(),
-            "coordinates": get_boundary(),
-            'opacity': 0.5
+            "source": get_ca_raster_image_from_file(),
+            "coordinates": get_ca_boundary(),
+            'opacity': 0.3
+        },
+        {
+            "sourcetype": "image",
+            "source": get_nv_raster_image_from_file(),
+            "coordinates": get_nv_boundary(),
+            'opacity': 0.3
         },
         {
             "sourcetype": "vector",
