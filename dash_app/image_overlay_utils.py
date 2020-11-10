@@ -76,7 +76,7 @@ def get_boundary():
 def get_ca_boundary():
     coordinates_ca = []
 
-    with open("coordinates_ca", "rb") as fp:
+    with open("data/coordinates_ca", "rb") as fp:
         coordinates_ca = pickle.load(fp)
     
     return coordinates_ca
@@ -86,7 +86,7 @@ def get_ca_boundary():
 def get_nv_boundary():
     coordinates_nv = []
 
-    with open("coordinates_nv", "rb") as fp:
+    with open("data/coordinates_nv", "rb") as fp:
         coordinates_nv = pickle.load(fp)
     
     return coordinates_nv
