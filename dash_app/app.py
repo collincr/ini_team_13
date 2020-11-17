@@ -10,14 +10,24 @@ import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
+import dash_bootstrap_components as dbc
 
 from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_raster_image_from_file, get_nv_raster_image_from_file
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_stylesheets = [
+    'https://codepen.io/chriddyp/pen/bWLwgP.css', 
+    {
+        'href': 'https://use.fontawesome.com/releases/v5.8.1/css/all.css',
+        'rel': 'stylesheet',
+        'integrity': 'sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf',
+        'crossorigin': 'anonymous'
+    },
+]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = "Geospatial Data Visualization for Land Gravity Surveys"
+server = app.server
 
 stations = pd.read_csv("data/ca_nvda_grav.csv").sort_values('isostatic_anom', ascending=False)
 stations['station_id'] = stations['station_id'].str.strip()
@@ -52,19 +62,32 @@ In addition, you can interact with the map to view the transect or the distribut
 """
 
 transect_intro_text = """
-**Transect**
-
 These two charts show how gravity and elevation vary along a line. You can select any points on the map and clear the data by clicking the "CLEAR TRANSECT
 DATA" button.
 """
 
 task4_intro_text = """
-**Distribution and ranking of gravity anomaly values**
-
 Here you can select multiple stations on the map, and see how one station compares to all the others.
 
 Click one station on the map to highlight it in the graph below.
 
+"""
+
+layer_selection_intro_text = """
+You can select any of the three types of visualizations. If you choose Scatter Plot, you can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
+You can clear the data you have selected by clicking the "CLEAR DATA" button below.
+"""
+
+help_text = """
+**Scatter Plot**: This shows all the data points in the dataset. 
+The color of each point is defined by the isostatic anomaly value collected at that station according to the colorscale.
+You can click the stations on the map to view the transect on the right side of this page, or the distribution and ranking among them on the bottom of this page.
+You can also use the "box select" from the menubar at the top of the map to select a set of stations.
+
+**Density Heatmap**: In the density map, each data point in the dataset is represented as a point smoothed with a given radius of influence.
+The more stations there are in an area, the "redder" the color is.
+
+**Interpolated Plot**: This is interpolated using the existing dataset to indicate the overall gravity anomaly distribution across the whole region.
 """
 
 
@@ -80,31 +103,56 @@ def title():
 def main_row():
     return html.Div([
         html.Div([
-            intro(),
-            html.Hr(),
+            layer_selection_intro(),
             layer_selection_radio_group(),
-
-            # tile_selection_radio_group(),
+            html.Button('Clear data', id='button-transect', n_clicks=0),
             main_map()
         ],
-            id="main-left", className="eight columns"),
+        id="main-left", className="seven columns"),
         html.Div([
             transect_intro(),
             dcc.Graph(id='transect-gravity', className="transect-graph"),
-            dcc.Graph(id='transect-elevation', className="transect-graph")],
-            id="main-right", className="four columns"),
+            dcc.Graph(id='transect-elevation', className="transect-graph"),
+            html.Hr(),
+            task4_row(),
+        ],
+        id="main-right", className="five columns"),
     ], id="main-row")
 
 
 # intro
-def intro():
+def intro_row():
     return html.Div(id="intro-text", children=dcc.Markdown(intro_text))
 
+# layer selection introduction
+def layer_selection_intro():
+    return html.Div(children=[
+        html.Div(
+            [
+                html.Div(children=[
+                    html.P('Select visualization type', className="title-with-helper"),
+                    html.A(className="far fa-question-circle helper-icon", id="layer-helper"),
+                ], className="title"),
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader("Visualization Types"),
+                        dbc.ModalBody(dcc.Markdown(help_text)),
+                        dbc.ModalFooter(
+                            dbc.Button("Close", id="close-centered", className="ml-auto")
+                        ),
+                    ],
+                    id="modal-centered",
+                    centered=True,
+                ),
+                html.Div(dcc.Markdown(layer_selection_intro_text)),
+            ],
+            id="layer-help"
+        )
+    ], className="layer-selection-intro")
 
 # layer selection radio buttons
 def layer_selection_radio_group():
     return html.Div(children=[
-        html.P('Select visualization type', className="title"),
         dcc.RadioItems(
             id="map-type",
             options=[
@@ -121,54 +169,58 @@ def layer_selection_radio_group():
 # t4
 def t4_selection_radio_group():
     return html.Div(children=[
-        html.P('How you want to select stations:', className="title"),
+        html.Div('How you want to select stations:', className="title"),
         dcc.RadioItems(
             id="t4_type",
             options=[
-                {'label': 'click each station on map', 'value': 0},
-                {'label': 'select box', 'value': 1},
+                {'label': 'Click each station on map', 'value': 0},
+                {'label': 'Select box', 'value': 1},
             ],
             labelStyle={"display": "inline-block"},
             value=0,
         ),
     ], className="radio-group")
 
-# tile selection radio buttons (not in use now)
-def tile_selection_radio_group():
-    return html.Div(children=[
-        html.P('Select tile type', className="title"),
-        dcc.RadioItems(
-            id="tile-type",
-            options=[
-                {"label": "default", "value": "light"},
-                {"label": "open street map", "value": "open-street-map"},
-                {"label": "satellite", "value": "satellite"},
-                {"label": "dark", "value": "carto-darkmatter"},
-            ],
-            labelStyle={"display": "inline-block"},
-            value='light',
-        ),
-    ], className="radio-group")
-
-
 # the main map
 def main_map():
     return dcc.Graph(
         id='map',
+        config={
+            'modeBarButtonsToRemove': ['lasso2d'],
+            'displaylogo': False,
+            'displayModeBar': True,
+        }
     )
 
 
 # transect intro
 def transect_intro():
     return html.Div(children=[
+        html.Div(children=[
+            html.P('Transect', className="title-with-helper"),
+            # html.A(className="far fa-question-circle helper-icon", id="transect-helper"),
+            # dbc.Tooltip(
+            #     dbc.PopoverBody(dcc.Markdown("something that you want to put in the tooltip")),
+            #     target="transect-helper",
+            #     placement="right",
+            # ),
+        ], className="title"),
         html.Div(id="transect-intro-text", children=dcc.Markdown(transect_intro_text)),
-        html.Button('Clear transect data', id='button-transect', n_clicks=0),
     ], id="transect-intro")
 
 
 # task4
 def task4_row():
     return html.Div([
+        html.Div(children=[
+            html.P('Distribution and ranking of gravity anomaly values', className="title-with-helper"),
+            # html.A(className="far fa-question-circle helper-icon", id="task4-helper"),
+            # dbc.Tooltip(
+            #     dbc.PopoverBody(dcc.Markdown("something that you want to put in the tooltip")),
+            #     target="task4-helper",
+            #     placement="right",
+            # ),
+        ], className="title"),
         html.Div(id="task4-intro-text", children=dcc.Markdown(task4_intro_text)),
         t4_selection_radio_group(),
         dcc.Graph(
@@ -197,12 +249,14 @@ def create_scatter_plot():
             color=stations.isostatic_anom,
             colorscale='spectral_r',
             showscale=True,
+            colorbar=dict(title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom")),
         ),
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
         hovertemplate="Station ID: %{customdata[1]}<br>"
-            "Latitude: %{lat}<br>"
-            "Longitude: %{lon}<br>"
-            "Isostatic Anomaly: %{customdata[0]}<extra></extra>",
+            "Latitude: %{lat}°<br>"
+            "Longitude: %{lon}°<br>"
+            "Isostatic Anomaly: %{customdata[0]} mGal<br>"
+            "Elevation: %{customdata[2]} m<extra></extra>",
         name="stations",
     ))
     fig.update_layout(mapbox_layers = [
@@ -225,14 +279,19 @@ def create_density_heatmap():
     fig = go.Figure(go.Densitymapbox(
         lat=stations.latitude, 
         lon=stations.longitude, 
-        z=stations.isostatic_anom, 
-        radius=10,
+        z=stations.isostatic_anom,
+        radius=10, # default: 30
         colorscale='spectral_r',
+        colorbar=dict(
+            title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom"),
+            outlinewidth=0,
+        ),
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
         hovertemplate="Station ID: %{customdata[1]}<br>"
-            "Latitude: %{lat}<br>"
-            "Longitude: %{lon}<br>"
-            "Isostatic Anomaly: %{customdata[0]}<extra></extra>",
+            "Latitude: %{lat}°<br>"
+            "Longitude: %{lon}°<br>"
+            "Isostatic Anomaly: %{customdata[0]} mGal<br>"
+            "Elevation: %{customdata[2]} m<extra></extra>",
         name="stations",
     ))
     fig.update_layout(mapbox_layers = [
@@ -253,22 +312,18 @@ def create_density_heatmap():
 # create the image overlay layer
 def create_image_overlay():
     fig = go.Figure(go.Scattermapbox(
-        # uncomment below to show the dots in the map
-        # lat=stations.latitude,
-        # lon=stations.longitude,
-        # mode='markers',
-        # marker=go.scattermapbox.Marker(
-        #     size=4,
-        #     color=stations.isostatic_anom,
-        #     colorscale='spectral_r',
-        #     showscale=True,
-        # ),
-        # customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
-        # hovertemplate="Latitude: %{lat}<br>"
-        #     "Longitude: %{lon}<br>"
-        #     "Value: %{customdata[0]}<br>"
-        #     "Station ID: %{customdata[1]}<extra></extra>",
-        # name="Stations",
+        lat=stations.latitude,
+        lon=stations.longitude,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=4,
+            color=stations.isostatic_anom,
+            colorscale='spectral_r',
+            showscale=True,
+            opacity=0,
+            colorbar=dict(title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom")),
+        ),
+        hoverinfo='skip',
     ))
     fig.update_layout(mapbox_layers=[
         {
@@ -302,8 +357,9 @@ def create_image_overlay():
 app.layout = html.Div(children=[
     title(),
     html.Hr(),
+    intro_row(),
+    html.Hr(),
     main_row(),
-    task4_row(),
 ])
 
 
@@ -332,7 +388,8 @@ def update_figure(value):
             zoom=5,
             uirevision=True,
         ),
-        margin={"r": 0, "t": 0, "l": 0, "b": 0},
+        margin={"r": 0, "t": 30, "l": 0, "b": 0},
+        height=800,
     )
     return fig
 
@@ -368,8 +425,11 @@ def update_charts(clickData, selected_data, clicks, value):
     )
 
     bar_layout = dict(
+        height=300,
         bargap=0.1,
-        xaxis_type="category"
+        xaxis_type="category",
+        xaxis_title="Station ID",
+        yaxis_title="Isostatic Anomaly"
     )
 
     global df_task2, df_task4, last_clicks, origin, distance
@@ -377,7 +437,7 @@ def update_charts(clickData, selected_data, clicks, value):
     fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
         mode="lines+markers")
     if task4_type is 0:
-        fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4')
+        fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking')
     elif task4_type is 1:
         df_task4 = stations
 
@@ -393,7 +453,7 @@ def update_charts(clickData, selected_data, clicks, value):
 
         if task4_type is 0:
             df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
-            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4')
+            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking')
 
     elif clickData:
         station_id = clickData['points'][0]['customdata'][1]
@@ -424,7 +484,7 @@ def update_charts(clickData, selected_data, clicks, value):
             to_be_change_color = df_task4[df_task4['station_id'] == station_id].index.item()
             colors[ to_be_change_color ]  = "crimson"
 
-            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4',color="station_id", color_discrete_sequence=colors) #color_discrete_map=m)
+            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking',color="station_id", color_discrete_sequence=colors) #color_discrete_map=m)
 
     fig1.update(layout=layout)
     fig2.update(layout=layout)
@@ -459,10 +519,20 @@ def update_charts(clickData, selected_data, clicks, value):
                 fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4', color="station_id",
                               color_discrete_sequence=colors)  # color_discrete_map=m)
 
+    fig3.update(layout=layout)
     fig3.update(layout=bar_layout)
 
     return fig1, fig2, fig3
 
+@app.callback(
+    Output("modal-centered", "is_open"),
+    [Input("layer-helper", "n_clicks"), Input("close-centered", "n_clicks")],
+    [State("modal-centered", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
