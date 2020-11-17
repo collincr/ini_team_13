@@ -2,6 +2,7 @@
 
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
+import math
 
 import dash
 import dash_core_components as dcc
@@ -9,14 +10,16 @@ import dash_html_components as html
 import geopandas as gpd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import pandas as pd
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
-from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_raster_image_from_file, get_nv_raster_image_from_file
+from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_raster_image_from_file, \
+    get_nv_raster_image_from_file
 
 external_stylesheets = [
-    'https://codepen.io/chriddyp/pen/bWLwgP.css', 
+    'https://codepen.io/chriddyp/pen/bWLwgP.css',
     {
         'href': 'https://use.fontawesome.com/releases/v5.8.1/css/all.css',
         'rel': 'stylesheet',
@@ -127,21 +130,21 @@ def main_row():
             html.Button('Clear data', id='button-transect', n_clicks=0),
             main_map()
         ],
-        id="main-left", className="seven columns"),
+            id="main-left", className="seven columns"),
         html.Div([
             transect_intro(),
             dcc.Graph(id='transect-gravity', className="transect-graph"),
-            dcc.Graph(id='transect-elevation', className="transect-graph"),
             html.Hr(),
-            task4_row(),
+            task4_row()
         ],
-        id="main-right", className="five columns"),
+            id="main-right", className="five columns"),
     ], id="main-row")
 
 
 # intro
 def intro_row():
     return html.Div(id="intro-text", children=dcc.Markdown(intro_text))
+
 
 # layer selection introduction
 def layer_selection_intro():
@@ -168,6 +171,7 @@ def layer_selection_intro():
             id="layer-help"
         )
     ], className="layer-selection-intro")
+
 
 # layer selection radio buttons
 def layer_selection_radio_group():
@@ -199,6 +203,7 @@ def t4_selection_radio_group():
             value=0,
         ),
     ], className="radio-group")
+
 
 # the main map
 def main_map():
@@ -272,13 +277,13 @@ def create_scatter_plot():
         ),
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
         hovertemplate="Station ID: %{customdata[1]}<br>"
-            "Latitude: %{lat}°<br>"
-            "Longitude: %{lon}°<br>"
-            "Isostatic Anomaly: %{customdata[0]} mGal<br>"
-            "Elevation: %{customdata[2]} m<extra></extra>",
+                      "Latitude: %{lat}°<br>"
+                      "Longitude: %{lon}°<br>"
+                      "Isostatic Anomaly: %{customdata[0]} mGal<br>"
+                      "Elevation: %{customdata[2]} m<extra></extra>",
         name="stations",
     ))
-    fig.update_layout(mapbox_layers = [
+    fig.update_layout(mapbox_layers=[
         {
             "sourcetype": "vector",
             "sourcelayer": "County",
@@ -296,10 +301,10 @@ def create_scatter_plot():
 # create the density heatmap layer
 def create_density_heatmap():
     fig = go.Figure(go.Densitymapbox(
-        lat=stations.latitude, 
-        lon=stations.longitude, 
+        lat=stations.latitude,
+        lon=stations.longitude,
         z=stations.isostatic_anom,
-        radius=10, # default: 30
+        radius=10,  # default: 30
         colorscale='spectral_r',
         colorbar=dict(
             title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom"),
@@ -307,13 +312,13 @@ def create_density_heatmap():
         ),
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
         hovertemplate="Station ID: %{customdata[1]}<br>"
-            "Latitude: %{lat}°<br>"
-            "Longitude: %{lon}°<br>"
-            "Isostatic Anomaly: %{customdata[0]} mGal<br>"
-            "Elevation: %{customdata[2]} m<extra></extra>",
+                      "Latitude: %{lat}°<br>"
+                      "Longitude: %{lon}°<br>"
+                      "Isostatic Anomaly: %{customdata[0]} mGal<br>"
+                      "Elevation: %{customdata[2]} m<extra></extra>",
         name="stations",
     ))
-    fig.update_layout(mapbox_layers = [
+    fig.update_layout(mapbox_layers=[
         {
             "sourcetype": "vector",
             "sourcelayer": "County",
@@ -416,7 +421,6 @@ def update_figure(value):
 # update the charts
 @app.callback([
     Output('transect-gravity', 'figure'),
-    Output('transect-elevation', 'figure'),
     Output('task-4', 'figure')],
     [Input('map', 'clickData'),
      Input('map', 'selectedData'),
@@ -452,9 +456,8 @@ def update_charts(clickData, selected_data, clicks, value):
     )
 
     global df_task2, df_task4, last_clicks, origin, distance
-    fig1 = px.line(df_task2, x='distance', y='gravity', title="Transect (gravity)").update_traces(mode="lines+markers")
-    fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
-        mode="lines+markers")
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
     if task4_type is 0:
         fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking')
     elif task4_type is 1:
@@ -463,10 +466,6 @@ def update_charts(clickData, selected_data, clicks, value):
     if clicks != last_clicks:
         last_clicks = clicks
         df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'gravity'])
-        fig1 = px.line(df_task2, x='distance', y='gravity', title="Transect (gravity)").update_traces(
-            mode="lines+markers")
-        fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
-            mode="lines+markers")
         origin = []
         distance = 0
 
@@ -478,16 +477,14 @@ def update_charts(clickData, selected_data, clicks, value):
         station_id = clickData['points'][0]['customdata'][1]
         index = stations.index[stations.station_id == station_id].tolist()[0]
         station = gdf.loc[index]
+        # print(str(station.station_id) + ": " + str(station.geometry))
         if not origin:
             origin = station.geometry
         distance += origin.distance(station.geometry)
         df_task2 = df_task2.append({'distance': distance, 'elevation': clickData['points'][0]['customdata'][2],
                                     'gravity': clickData['points'][0]['customdata'][0]}, ignore_index=True)
         df_task2 = df_task2.sort_values('distance').reset_index(drop=True)
-        fig1 = px.line(df_task2, x='distance', y='gravity', title="Transect (gravity)").update_traces(
-            mode="lines+markers")
-        fig2 = px.line(df_task2, x='distance', y='elevation', title="Transect (elevation)").update_traces(
-            mode="lines+markers")
+
         origin = station.geometry
 
         if task4_type is 0:
@@ -501,17 +498,35 @@ def update_charts(clickData, selected_data, clicks, value):
 
             colors = ["blue", ] * len(df_task4['station_id'])
             to_be_change_color = df_task4[df_task4['station_id'] == station_id].index.item()
-            colors[ to_be_change_color ]  = "crimson"
+            colors[to_be_change_color] = "crimson"
 
-            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking',color="station_id", color_discrete_sequence=colors) #color_discrete_map=m)
+            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking',
+                          color="station_id", color_discrete_sequence=colors)  # color_discrete_map=m)
 
-    fig1.update(layout=layout)
-    fig2.update(layout=layout)
+    # Add traces
+    fig.add_trace(
+        go.Scatter(x=df_task2.distance, y=df_task2.gravity, name="gravity"),
+        secondary_y=False,
+    )
+
+    fig.add_trace(
+        go.Scatter(x=df_task2.distance, y=df_task2.elevation, name="elevation"),
+        secondary_y=True,
+    )
+
+    fig.update(layout=layout)
+
+    # Set x-axis title
+    fig.update_xaxes(title_text="distance (m)")
+
+    # Set y-axes titles
+    fig.update_yaxes(title_text="gravity (mGal)", secondary_y=False)
+    fig.update_yaxes(title_text="elevation (ft)", secondary_y=True)
 
     if task4_type is 1:
         if not selected_data:
             fig3 = px.bar(x=['a'], y=['a'])
-            return fig1, fig2, fig3
+            return fig, fig3
 
         df_task4 = stations
         if selected_data and selected_data['points']:
@@ -525,7 +540,6 @@ def update_charts(clickData, selected_data, clicks, value):
         df_task4 = df_task4.reset_index(drop=True)
         fig3 = px.bar(x=list(range(df_task4.shape[0])), y=df_task4.isostatic_anom)
         fig3.update_layout(bargap=0)
-
 
         if clickData:
             colors = ["blue", ] * len(df_task4['station_id'])
@@ -541,7 +555,8 @@ def update_charts(clickData, selected_data, clicks, value):
     fig3.update(layout=layout)
     fig3.update(layout=bar_layout)
 
-    return fig1, fig2, fig3
+    return fig, fig3
+
 
 @app.callback(
     Output("modal-centered", "is_open"),
@@ -552,6 +567,7 @@ def toggle_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
