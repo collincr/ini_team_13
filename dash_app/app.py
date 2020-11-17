@@ -74,20 +74,39 @@ Click one station on the map to highlight it in the graph below.
 """
 
 layer_selection_intro_text = """
-You can select any of the three types of visualizations. If you choose Scatter Plot, you can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
-You can clear the data you have selected by clicking the "CLEAR DATA" button below.
+You can select any of the three types of visualizations. 
+If you choose Scatter Plot, you can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
+You can also use the box select tool in the menu bar and switch the ranking type to box select to select multiple points at a time.
+To clear the data you have selected, click the "CLEAR DATA" button below.
 """
 
 help_text = """
-**Scatter Plot**: This shows all the data points in the dataset. 
-The color of each point is defined by the isostatic anomaly value collected at that station according to the colorscale.
-You can click the stations on the map to view the transect on the right side of this page, or the distribution and ranking among them on the bottom of this page.
+**Scatter Plot**
+
+The scatter plot displays all the data points in the dataset on the map according to their isostatic anomaly value. 
+It is a direct way to discover all the data points and view the spacial distribution of these points.
+The color of each point is defined by the isostatic anomaly value according to the colorscale.
+
+You can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
 You can also use the "box select" from the menubar at the top of the map to select a set of stations.
 
-**Density Heatmap**: In the density map, each data point in the dataset is represented as a point smoothed with a given radius of influence.
-The more stations there are in an area, the "redder" the color is.
+---
 
-**Interpolated Plot**: This is interpolated using the existing dataset to indicate the overall gravity anomaly distribution across the whole region.
+**Density Heatmap**
+
+In the density map, each data point in the dataset is represented as a point smoothed with a given radius of influence.
+It shows the patial distribution of the stations that the datasets are collection from.
+You can tell which areas that are sampled more sparsely vs. the areas that are sampled more densely from this map.
+A potential application of this map is to inform viewers which areas should be prioritized for collecting new data.  
+
+---
+
+**Interpolated Plot**
+
+
+The interpolated plot connects data points by estimating values within the gaps between stations.
+This is done by doing continuous interpolation on the original dataset.
+From this plot, you can get a rough idea about the gravity anomaly value of the unsampled areas.
 """
 
 
@@ -135,7 +154,7 @@ def layer_selection_intro():
                 ], className="title"),
                 dbc.Modal(
                     [
-                        dbc.ModalHeader("Visualization Types"),
+                        dbc.ModalHeader("Visualization Type Instructions"),
                         dbc.ModalBody(dcc.Markdown(help_text)),
                         dbc.ModalFooter(
                             dbc.Button("Close", id="close-centered", className="ml-auto")
