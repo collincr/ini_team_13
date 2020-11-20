@@ -51,12 +51,12 @@ def get_image():
 
 ### get image directly from file
 def get_ca_raster_image_from_file():
-    im = Image.open(r"data/mask_ca.png")
+    im = Image.open(r"data/california_raster_final_3857_201119.png")
     return im
 
 ### get image directly from file
 def get_nv_raster_image_from_file():
-    im = Image.open(r"data/mask_nv.png")
+    im = Image.open(r"data/nevada_raster_final_3857_201119.png")
     return im
 
 ### get the boundary of the image
