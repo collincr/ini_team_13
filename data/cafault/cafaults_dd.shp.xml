@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<metadata>
+	<idinfo>
+		<citation>
+			<citeinfo>
+				<origin>Steve Ludington</origin>
+				<origin>Barry C. Moring</origin>
+				<origin>Robert J. Miller</origin>
+				<origin>Kathryn S. Flynn</origin>
+				<origin>Paul A. Stone</origin>
+				<origin>David R. Bedford</origin>
+				<pubdate>2005</pubdate>
+				<title>Preliminary integrated databases for the United States - Western States: California, Nevada, Arizona, and Washington</title>
+				<edition>Version 1.0</edition>
+				<geoform>vector digital data</geoform>
+				<serinfo>
+					<sername>U.S. Geological Survey Open-File Report</sername>
+					<issue>OFR 2005-1305</issue>
+				</serinfo>
+				<pubinfo>
+					<pubplace>Reston, Virginia, USA</pubplace>
+					<publish>U.S. Geological Survey</publish>
+				</pubinfo>
+				<onlink>http://pubs.usgs.gov/of/2005/1305</onlink>
+				<ftname Sync="TRUE">cageol_lcc</ftname></citeinfo>
+		</citation>
+		<descript>
+			<abstract>These digital maps are a reformulation of previously published maps, primarily maps of states. The reformulation gives all the maps the same structure and format, allowing them to be combined into regional maps. The associated data tables have information about age and lithology of the map units, also in a standard format.</abstract>
+			<purpose>Provide digital maps and databases that, because of their common structure and format, allow creation of regional maps that depict age and lithology of map units.</purpose>
+			<supplinf>The data is provided in decimal degrees and in Lambert Conformal Conic projection. The data is provided in both coverage and shapefile format, and includes supplemental attribute tables. No attempt was made to reconcile differences in mapping across state boundaries.</supplinf>
+			<langdata Sync="TRUE">en</langdata></descript>
+		<timeperd>
+			<timeinfo>
+				<sngdate>
+					<caldate>2005</caldate>
+				</sngdate>
+			</timeinfo>
+			<current>publication date</current>
+		</timeperd>
+		<status>
+			<progress>Complete</progress>
+			<update>None planned</update>
+		</status>
+		<spdom>
+			<bounding>
+				<westbc>-126.494824</westbc>
+				<eastbc>-113.794483</eastbc>
+				<northbc>43.802247</northbc>
+				<southbc>31.088099</southbc>
+			</bounding>
+			<lboundng><leftbc Sync="TRUE">-2161573.559731</leftbc><rightbc Sync="TRUE">-1293542.828006</rightbc><bottombc Sync="TRUE">4039905.581245</bottombc><topbc Sync="TRUE">5265118.553717</topbc></lboundng></spdom>
+		<keywords>
+			<theme>
+				<themekt>none</themekt>
+				<themekey>geology</themekey>
+				<themekey>lithology</themekey>
+				<themekey>geologic age</themekey>
+				<themekey>maps</themekey>
+			</theme>
+			<place>
+				<placekt>none</placekt>
+				<placekey>USA</placekey>
+				<placekey>California</placekey>
+			</place>
+		</keywords>
+		<accconst>No warranty, expressed or implied, is made regarding the accuracy or utility of this data for general or scientific purposes, nor shall the act of distribution constitute any such warranty. The U.S. Geological Survey shall not be held liable for improper or incorrect use of this data. Used with permission, California Department of Conservation, California Geological Survey. Modified from, California Geological Survey, CD-ROM 2000-007 (2000), GIS Data for the Geologic Map of California.</accconst>
+		<useconst>
+This database is not meant to be used at scales appreciably larger or smaller than the original scale. Any printed material utilizing these databases shall clearly indicate their source. If modifications to the data are made, this should be clearly indicated and described in print. Users specifically agree not to misrepresent these data, nor to imply that any changes they have made were approved by the U.S. Geological Survey.
+This database has been approved for release and publication by the Director of the U.S. Geological Survey. Although the database has been subjected to review and is substantially complete, the U.S. Geological Survey reserves the right to revise the data pursuant to further analysis and review. The database is released on the condition that neither the U.S. Geological Survey or the United States Government may be held liable for any damages resulting from its authorized or unauthorized use. Used with permission, California Department of Conservation, California Geological Survey. Modified from, California Geological Survey, CD-ROM 2000-007 (2000), GIS Data for the Geologic Map of California.
+</useconst>
+		<ptcontac>
+			<cntinfo>
+				<cntperp>
+					<cntper>Steve Ludington</cntper>
+					<cntorg>U.S. Geological Survey</cntorg>
+				</cntperp>
+				<cntpos>geologist</cntpos>
+				<cntaddr>
+					<addrtype>mailing and physical address</addrtype>
+					<address>U.S. Geological Survey, MS 901</address>
+					<address>345 Middlefield Road</address>
+					<city>Menlo Park</city>
+					<state>CA</state>
+					<postal>94025</postal>
+					<country>USA</country>
+				</cntaddr>
+				<cntvoice>650.329.5371</cntvoice>
+				<cntemail>slud@usgs.gov</cntemail>
+			</cntinfo>
+		</ptcontac>
+		<datacred>U.S. Geological Survey, California Geological Survey</datacred>
+		<secinfo></secinfo>
+		<native>Microsoft Windows XP Version 5.1 (Build 2600) Service Pack 2; ESRI ArcCatalog 9.0.0.535</native>
+		<natvform Sync="TRUE">ArcInfo Coverage</natvform></idinfo>
+	<dataqual>
+		<attracc>
+			<attraccr>Map unit designations follow original compilation faithfully. Additional information about age and lithology was obtained from the paper map legend and geologic literature.</attraccr>
+		</attracc>
+		<logic>All internal polygons were checked for closure. Overshoots and undershoots have been deleted or corrected as appropriate.</logic>
+		<complete>The dataset contains all the map units and faults that were portrayed on the original printed map. Bodies of water are classified as water, and geologic units underlying them are not portrayed.</complete>
+		<posacc>
+			<horizpa>
+				<horizpar>The geologic map was digitized from compilations ranging in scale from 1:100,000 to 1:1,000,000, and is an accurate representation of the source maps. It is intended to be used at scales equal to or smaller than 1:500,000. Display at significantly larger scales may produce error in location of contacts or faults relative to features contained in other data sets. The state boundary arcs are based on the 1:100,000 scale USGS topographic map series digital line graphs. Many water boundaries do not correspond closely to other datasets.</horizpar>
+			</horizpa>
+			<vertacc>
+				<vertaccr>n/a</vertaccr>
+			</vertacc>
+		</posacc>
+		<lineage>
+			<srcinfo>
+				<srccite>
+					<citeinfo>
+						<origin>Saucedo, G.J.</origin>
+						<origin>Bedford, D.R.</origin>
+						<origin>Raines, G.L.</origin>
+						<origin>Miller, R.J.</origin>
+						<origin>Wentworth, C.M.</origin>
+						<pubdate>2000</pubdate>
+						<title>GIS data for the geologic map of California</title>
+						<geoform>vector digital data</geoform>
+						<serinfo>
+							<sername>DMG CD</sername>
+							<issue>2000-007</issue>
+						</serinfo>
+						<pubinfo>
+							<pubplace>Sacramento, CA</pubplace>
+							<publish>California Geological Survey</publish>
+						</pubinfo>
+						<othercit>Digitized from the 1977 Geologic Map of California by C.W. Jennings</othercit>
+					</citeinfo>
+				</srccite>
+				<typesrc>CD-ROM</typesrc>
+				<srccitea>digital map we started from</srccitea>
+			</srcinfo>
+			<srcinfo>
+				<srccite>
+					<citeinfo>
+						<origin>Bruce R. Johnson</origin>
+						<pubdate>Unpublished Material</pubdate>
+						<title>State boundaries</title>
+						<geoform>vector digital data</geoform>
+					</citeinfo>
+				</srccite>
+				<srcscale>100,000</srcscale>
+				<typesrc>online</typesrc>
+				<srccitea>US001</srccitea>
+				<srccontr>Provided linework for state boundaries</srccontr>
+			</srcinfo>
+			<procstep>
+				<procdesc>Dataset copied.</procdesc>
+				<procdate>2002</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>Adjusted the perimeter of the coverage to match a reference dataset of state boundaries derived from 1:100,000 scale digital line graphs. This allows the map to be used together with adjoining state maps referenced to the same boundary data. Replaced a section of the state boundary that follows the Colorado River with a line from 1:100,000 scale digital line graph hydrographic files. The state and international boundaries have a source of US001 in the AAT.</procdesc>
+				<procdate>2004</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>Relabeled 8 polygons to conform to the printed map. These adjustments have a source of CA202 in the PAT.</procdesc>
+				<procdate>2003</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>During rectification of arc errors, created 9 new polygons to conform to the printed map. These adjustments have a source of CA201 in the PAT.</procdesc>
+				<procdate>2003</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>Nine arcs were either added or extended to conform to the printed map's polygon representation. These adjustments have a source of CA101 in the AAT.</procdesc>
+				<procdate>2003</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>A number of faults on the printed map have small breaks that were originally coded as scratch boundaries. We concluded that these breaks were meant to imply approximate location, and so have changed the label on 281 arcs to reflect that interpretation. These adjustments have a source of CA102 in the AAT.</procdesc>
+				<procdate>2003</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>A number of arcs were present, coded as contacts or scratch boundaries that unnecessarily divided two polygons with the same label. These arcs were eliminated and the corresponding polygons consolidated.</procdesc>
+				<procdate>2003</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>The appropriate arcs were recoded as state and international boundaries.</procdesc>
+				<procdate>2005</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>To prepare a uniform AAT file, the following items were added: arc-code, arc-para1, and arc-para2. The last two are not used. Arc-code was populated, using the information in the original item, and inspection of the printed map. Then the original items in the AAT were deleted (LTYPE, SEL, SYMB).</procdesc>
+				<procdate>2005</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>To prepare a uniform PAT file, the following items were added: ORIG_LABEL, SGMC_LABEL, UNIT_LINK, SOURCE, UNIT_AGE, ROCKTYPE1, and ROCKTYPE2. ORIG_LABEL was populated from the original item (PTYPE). New unit designations for SGMC_LABEL were developed by Paul Stone, David Miller, and Steve Ludington, based on the geologic literature, personal communications, and personal knowledge. UNIT_LINK was populated with information in the accompanying attribute table CAunits, UNIT_AGE was populated with information in the accompanying attribute table CAage, and ROCKTYPE1 and ROCKTYPE2 were populated with information in the accompanying attribute table CAlith. Then the original items in the PAT were deleted (PTYPE, SEL, SYMB).</procdesc>
+				<procdate>2005</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>Because California has such complex geology, many of the original map units contained a wide variety of lithologies and are difficult to characterize. We subdivided many of the units, grouping outcrops with common characterisitcs that allowed a coherent description. For example, the map unit SO (Silurian and Ordovician sedimentary rocks) was divided into SO1 (southeastern California - primarily dolomite and limestone), SO2 (eastern Sierra Nevada - primarily argillite and sandstone), and SO3 (eastern Klamath Mountains - primarily graywacke and phyllite). These subunits were named by simply appending an integer and placing the resulting label into SGMC_LABEL. Their geographic, lithologic, and age characteristics are recorded in the accompanying attribute tables (CAunits, CAlith, CAage).</procdesc>
+				<procdate>2004</procdate>
+			</procstep>
+			<procstep>
+				<procdesc>Metadata imported.</procdesc>
+				<srcused>C:\DOCUME~1\Barry\LOCALS~1\Temp\xml18A.tmp</srcused>
+			</procstep>
+			<procstep>
+				<procdesc>Metadata imported.</procdesc>
+				<srcused>C:\DOCUME~1\slud\LOCALS~1\Temp\xml10.tmp</srcused>
+			</procstep>
+			<procstep><procdesc Sync="TRUE">Metadata imported.</procdesc><srcused Sync="TRUE">C:\DOCUME~1\slud\LOCALS~1\Temp\xml11.tmp</srcused><date Sync="TRUE">20050817</date><time Sync="TRUE">11084700</time></procstep><procstep><procdesc Sync="TRUE">Dataset copied.</procdesc><srcused Sync="TRUE"></srcused><date Sync="TRUE">20071130</date><time Sync="TRUE">11134700</time></procstep></lineage>
+	</dataqual>
+	<spdoinfo>
+		<direct>Vector</direct>
+		<ptvctinf>
+			<sdtsterm Name="arc">
+				<sdtstype>Complete chain</sdtstype>
+				<ptvctcnt>52801</ptvctcnt>
+			</sdtsterm>
+			<sdtsterm Name="label">
+				<sdtstype>Label point</sdtstype>
+				<ptvctcnt>12239</ptvctcnt>
+			</sdtsterm>
+			<sdtsterm Name="polygon">
+				<sdtstype>GT-polygon composed of chains</sdtstype>
+				<ptvctcnt>12239</ptvctcnt>
+			</sdtsterm>
+			<sdtsterm Name="tic">
+				<sdtstype>Point</sdtstype>
+				<ptvctcnt>37</ptvctcnt>
+			</sdtsterm>
+			<sdtsterm Name="annotation">
+				<sdtstype>Label point</sdtstype>
+				<ptvctcnt>0</ptvctcnt>
+			</sdtsterm>
+			<sdtsterm Name="link">
+				<sdtstype>String</sdtstype>
+				<ptvctcnt>0</ptvctcnt>
+			</sdtsterm>
+			<esriterm Name="arc"><efeatyp Sync="TRUE">Simple</efeatyp><efeageom Sync="TRUE">Arc</efeageom><esritopo Sync="TRUE">FALSE</esritopo><efeacnt Sync="TRUE">52795</efeacnt><spindex Sync="TRUE">FALSE</spindex><linrefer Sync="TRUE">FALSE</linrefer></esriterm><esriterm Name="label"><efeatyp Sync="TRUE">Simple</efeatyp><efeageom Sync="TRUE">Label</efeageom><esritopo Sync="TRUE">FALSE</esritopo><efeacnt Sync="TRUE">12239</efeacnt><spindex Sync="TRUE">FALSE</spindex><linrefer Sync="TRUE">FALSE</linrefer></esriterm><esriterm Name="polygon"><efeatyp Sync="TRUE">Simple</efeatyp><efeageom Sync="TRUE">Polygon</efeageom><esritopo Sync="TRUE">TRUE</esritopo><efeacnt Sync="TRUE">12239</efeacnt><spindex Sync="TRUE">FALSE</spindex><linrefer Sync="TRUE">FALSE</linrefer></esriterm><esriterm Name="tic"><efeatyp Sync="TRUE">Simple</efeatyp><efeageom Sync="TRUE">Tic</efeageom><esritopo Sync="TRUE">FALSE</esritopo><efeacnt Sync="TRUE">37</efeacnt><spindex Sync="TRUE">FALSE</spindex><linrefer Sync="TRUE">FALSE</linrefer></esriterm><esriterm Name="annotation"><efeatyp Sync="TRUE"></efeatyp><efeageom Sync="TRUE">Annotation</efeageom><esritopo Sync="TRUE">FALSE</esritopo><efeacnt Sync="TRUE">0</efeacnt><spindex Sync="TRUE">FALSE</spindex><linrefer Sync="TRUE">FALSE</linrefer></esriterm><esriterm Name="link"><efeatyp Sync="TRUE">Simple</efeatyp><efeageom Sync="TRUE">Link</efeageom><esritopo Sync="TRUE">FALSE</esritopo><efeacnt Sync="TRUE">0</efeacnt><spindex Sync="TRUE">FALSE</spindex><linrefer Sync="TRUE">FALSE</linrefer></esriterm></ptvctinf>
+	</spdoinfo>
+	<spref>
+		<horizsys>
+			<planar>
+				<planci>
+					<plance>coordinate pair</plance>
+					<coordrep>
+						<absres>0.002048</absres>
+						<ordres>0.002048</ordres>
+					</coordrep>
+					<plandu>meters</plandu>
+				</planci>
+				<mapproj><mapprojn Sync="TRUE">Lambert Conformal Conic</mapprojn><lambertc><stdparll Sync="TRUE">33.000000</stdparll><stdparll Sync="TRUE">45.000000</stdparll><longcm Sync="TRUE">-100.000000</longcm><latprjo Sync="TRUE">0.000000</latprjo><feast Sync="TRUE">0.000000</feast><fnorth Sync="TRUE">0.000000</fnorth></lambertc></mapproj></planar>
+			<geodetic>
+				<horizdn>North American Datum of 1927</horizdn>
+				<ellips>Clarke 1866</ellips>
+				<semiaxis>6378206.400000</semiaxis>
+				<denflat>294.978698</denflat>
+			</geodetic>
+			<cordsysn><geogcsn Sync="TRUE">GCS_North_American_1927</geogcsn><projcsn Sync="TRUE">NAD_1927_Lambert_Conformal_Conic</projcsn></cordsysn></horizsys>
+	</spref>
+	<eainfo>
+		<detailed Name="cageol_lcc.aat">
+			<enttyp>
+				<enttypl>cageol_lcc96.aat</enttypl>
+				<enttypt Sync="TRUE">Feature Class</enttypt><enttypc Sync="TRUE">52795</enttypc></enttyp>
+			<attr>
+				<attrlabl>FID</attrlabl>
+				<attrdef>Internal feature number.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Sequential unique whole numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attalias Sync="TRUE">FID</attalias><attrtype Sync="TRUE">OID</attrtype><attwidth Sync="TRUE">4</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr>
+			<attr>
+				<attrlabl>Shape</attrlabl>
+				<attrdef>Feature geometry.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Coordinates defining the features.</udom>
+				</attrdomv>
+				<attalias Sync="TRUE">Shape</attalias><attrtype Sync="TRUE">Geometry</attrtype><attwidth Sync="TRUE">0</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr>
+			<attr>
+				<attrlabl>FNODE#</attrlabl>
+				<attrdef>Internal node number for the beginning of an arc (from-node).</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Whole numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">4</attwidth><atoutwid Sync="TRUE">5</atoutwid><attrtype Sync="TRUE">Binary</attrtype></attr>
+			<attr>
+				<attrlabl>TNODE#</attrlabl>
+				<attrdef>Internal node number for the end of an arc (to-node).</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Whole numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">4</attwidth><atoutwid Sync="TRUE">5</atoutwid><attrtype Sync="TRUE">Binary</attrtype></attr>
+			<attr>
+				<attrlabl>LPOLY#</attrlabl>
+				<attrdef>Internal node number for the left polygon.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Whole numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">4</attwidth><atoutwid Sync="TRUE">5</atoutwid><attrtype Sync="TRUE">Binary</attrtype></attr>
+			<attr>
+				<attrlabl>RPOLY#</attrlabl>
+				<attrdef>Internal node number for the right polygon.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Whole numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">4</attwidth><atoutwid Sync="TRUE">5</atoutwid><attrtype Sync="TRUE">Binary</attrtype></attr>
+			<attr>
+				<attrlabl>LENGTH</attrlabl>
+				<attrdef>Length of feature in internal units.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Positive real numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">8</attwidth><atoutwid Sync="TRUE">18</atoutwid><attrtype Sync="TRUE">Float</attrtype><atnumdec Sync="TRUE">5</atnumdec></attr>
+			<attr>
+				<attrlabl>CAGEOL_LCC96#</attrlabl>
+				<attrdef>Internal feature number.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Sequential unique whole numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">4</attwidth><atoutwid Sync="TRUE">5</atoutwid><attrtype Sync="TRUE">Binary</attrtype></attr>
+			<attr>
+				<attrlabl>CAGEOL_LCC96-ID</attrlabl>
+				<attrdef>User-defined feature number.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attwidth Sync="TRUE">4</attwidth><atoutwid Sync="TRUE">5</atoutwid><attrtype Sync="TRUE">Binary</attrtype></attr>
+			<attr>
+				<attrlabl>ARC-CODE</attrlabl>
+				<attrdef>unique identifier for line features</attrdef>
+				<attrdomv>
+					<edom>
+						<edomv>1</edomv>
+						<edomvd>Contact, location certain</edomvd>
+					</edom>
+					<edom>
+						<edomv>2</edomv>
+						<edomvd>Contact, location approximate</edomvd>
+					</edom>
+					<edom>
+						<edomv>4</edomv>
+						<edomvd>Normal fault, location certain</edomvd>
+					</edom>
+					<edom>
+						<edomv>5</edomv>
+						<edomvd>Normal fault, location approximate</edomvd>
+					</edom>
+					<edom>
+						<edomv>7</edomv>
+						<edomvd>Shoreline or riverbank</edomvd>
+					</edom>
+					<edom>
+						<edomv>8</edomv>
+						<edomvd>Internal contact</edomvd>
+					</edom>
+					<edom>
+						<edomv>10</edomv>
+						<edomvd>Thrust fault, location certain</edomvd>
+					</edom>
+					<edom>
+						<edomv>11</edomv>
+						<edomvd>Thrust fault, location approximate</edomvd>
+					</edom>
+					<edom>
+						<edomv>30</edomv>
+						<edomvd>Fault, sense of displacement unknown or undefined, location certain</edomvd>
+					</edom>
+					<edom>
+						<edomv>31</edomv>
+						<edomvd>Fault, sense of displacement unknown or undefined, location approximate</edomvd>
+					</edom>
+					<edom>
+						<edomv>32</edomv>
+						<edomvd>Fault, sense of displacement unknown or undefined, location inferred or queried</edomvd>
+					</edom>
+					<edom>
+						<edomv>52</edomv>
+						<edomvd>Normal fault, concealed</edomvd>
+					</edom>
+					<edom>
+						<edomv>53</edomv>
+						<edomvd>Thrust fault, concealed</edomvd>
+					</edom>
+					<edom>
+						<edomv>57</edomv>
+						<edomvd>Right lateral fault, concealed</edomvd>
+					</edom>
+					<edom>
+						<edomv>58</edomv>
+						<edomvd>Left lateral fault, concealed</edomvd>
+					</edom>
+					<edom>
+						<edomv>87</edomv>
+						<edomvd>Right lateral fault, location certain</edomvd>
+					</edom>
+					<edom>
+						<edomv>88</edomv>
+						<edomvd>Right lateral fault, location approximate</edomvd>
+					</edom>
+					<edom>
+						<edomv>89</edomv>
+						<edomvd>Right lateral fault, location inferred or queried</edomvd>
+					</edom>
+					<edom>
+						<edomv>90</edomv>
+						<edomvd>Left lateral fault, location certain</edomvd>
+					</edom>
+					<edom>
+						<edomv>91</edomv>
+						<edomvd>Left lateral fault, location approximate</edomvd>
+					</edom>
+					<edom>
+						<edomv>92</edomv>
+						<edomvd>Left lateral fault, location inferred or queried</edomvd>
+					</edom>
+					<edom>
+						<edomv>100</edomv>
+						<edomvd>Fault, sense of displacement unknown, concealed</edomvd>
+					</edom>
+					<edom>
+						<edomv>109</edomv>
+						<edomvd>Detachment fault, location certain</edomvd>
+					</edom>
+					<edom>
+						<edomv>113</edomv>
+						<edomvd>Strike-slip fault, motion unknown, location certain</edomvd>
+					</edom>
+					<edom>
+						<edomv>114</edomv>
+						<edomvd>Strike-slip fault, motion unknown, location approximate</edomvd>
+					</edom>
+					<edom>
+						<edomv>115</edomv>
+						<edomvd>Strike-slip fault, motion unknown, location inferred</edomvd>
+					</edom>
+					<edom>
+						<edomv>116</edomv>
+						<edomvd>Strike-slip fault, motion unknown, location concealed</edomvd>
+					</edom>
+					<edom>
+						<edomv>124</edomv>
+						<edomvd>State boundary</edomvd>
+					</edom>
+					<edom>
+						<edomv>125</edomv>
+						<edomvd>International boundary</edomvd>
+					</edom>
+					<edom>
+						<edomv>129</edomv>
+						<edomvd>Playa shoreline</edomvd>
+					</edom>
+				</attrdomv>
+				<attwidth Sync="TRUE">3</attwidth><atoutwid Sync="TRUE">3</atoutwid><attrtype Sync="TRUE">Integer</attrtype></attr>
+			<attr>
+				<attrlabl>ARC-PARA1</attrlabl>
+				<attrdef>additional spatial information about structures; not used</attrdef>
+				<attwidth Sync="TRUE">3</attwidth><atoutwid Sync="TRUE">3</atoutwid><attrtype Sync="TRUE">Integer</attrtype></attr>
+			<attr>
+				<attrlabl>ARC-PARA2</attrlabl>
+				<attrdef>available scratch field; not used</attrdef>
+				<attwidth Sync="TRUE">3</attwidth><atoutwid Sync="TRUE">3</atoutwid><attrtype Sync="TRUE">Integer</attrtype></attr>
+			<attr>
+				<attrlabl>SOURCE</attrlabl>
+				<attrdef>a coded reference citation indicating source used</attrdef>
+				<attrdefs>Steve Ludington</attrdefs>
+				<attrdomv>
+					<edom>
+						<edomv>CA001</edomv>
+						<edomvd>from original source coverage</edomvd>
+					</edom>
+				</attrdomv>
+				<attrdomv>
+					<edom>
+						<edomv>US001</edomv>
+						<edomvd>state and international boundaries</edomvd>
+					</edom>
+				</attrdomv>
+				<attrdomv>
+					<edom>
+						<edomv>CA101</edomv>
+						<edomvd>arc added or extended to conform to printed map</edomvd>
+					</edom>
+				</attrdomv>
+				<attrdomv>
+					<edom>
+						<edomv>CA102</edomv>
+						<edomvd>arcs originally coded as scratch boundaries that are really approximate contacts were coded to reflect intent of printed map</edomvd>
+					</edom>
+				</attrdomv>
+				<attwidth Sync="TRUE">6</attwidth><atoutwid Sync="TRUE">6</atoutwid><attrtype Sync="TRUE">Character</attrtype></attr>
+		</detailed>
+		<detailed Name="cageol_lcc.pat">
+			<enttyp>
+				<enttypl>cageol_lcc96.pat</enttypl>
+				<enttypd>polygon attribute table</enttypd>
+				<enttypds>ESRI</enttypds>
+				<enttypt Sync="TRUE">Feature Class</enttypt><enttypc Sync="TRUE">12239</enttypc></enttyp>
+			<attr>
+				<attrlabl>FID</attrlabl>
+				<attrdef>Internal feature number.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Sequential unique whole numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attalias Sync="TRUE">FID</attalias><attrtype Sync="TRUE">OID</attrtype><attwidth Sync="TRUE">4</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr>
+			<attr>
+				<attrlabl>Shape</attrlabl>
+				<attrdef>Feature geometry.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Coordinates defining the features.</udom>
+				</attrdomv>
+				<attalias Sync="TRUE">Shape</attalias><attrtype Sync="TRUE">Geometry</attrtype><attwidth Sync="TRUE">0</attwidth><atprecis Sync="TRUE">0</atprecis><attscale Sync="TRUE">0</attscale></attr>
+			<attr>
+				<attrlabl>AREA</attrlabl>
+				<attrdef>Area of feature in internal units squared.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Positive real numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">8</attwidth><atoutwid Sync="TRUE">18</atoutwid><attrtype Sync="TRUE">Float</attrtype><atnumdec Sync="TRUE">5</atnumdec></attr>
+			<attr>
+				<attrlabl>PERIMETER</attrlabl>
+				<attrdef>Perimeter of feature in internal units.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Positive real numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">8</attwidth><atoutwid Sync="TRUE">18</atoutwid><attrtype Sync="TRUE">Float</attrtype><atnumdec Sync="TRUE">5</atnumdec></attr>
+			<attr>
+				<attrlabl>CAGEOL_LCC96#</attrlabl>
+				<attrdef>Internal feature number.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attrdomv>
+					<udom>Sequential unique whole numbers that are automatically generated.</udom>
+				</attrdomv>
+				<attwidth Sync="TRUE">4</attwidth><atoutwid Sync="TRUE">5</atoutwid><attrtype Sync="TRUE">Binary</attrtype></attr>
+			<attr>
+				<attrlabl>CAGEOL_LCC96-ID</attrlabl>
+				<attrdef>User-defined feature number.</attrdef>
+				<attrdefs>ESRI</attrdefs>
+				<attwidth Sync="TRUE">4</attwidth><atoutwid Sync="TRUE">5</atoutwid><attrtype Sync="TRUE">Binary</attrtype></attr>
+			<attr>
+				<attrlabl>ORIG_LABEL</attrlabl>
+				<attrdef>unmodified map unit symbol from source coverage</attrdef>
+				<attrdomv>
+					<codesetd>
+						<codesetn>CAunits</codesetn>
+						<codesets>Accompanying attribute table in OFR 2005-1305. View by opening .csv file in Excel</codesets>
+					</codesetd>
+				</attrdomv>
+				<attwidth Sync="TRUE">12</attwidth><atoutwid Sync="TRUE">12</atoutwid><attrtype Sync="TRUE">Character</attrtype></attr>
+			<attr>
+				<attrlabl>SGMC_LABEL</attrlabl>
+				<attrdef>orig_label + ;n, where n is a province number (0 if no provinces)</attrdef>
+				<attrdefs>Steve Ludington</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>CAunits</codesetn>
+						<codesets>Accompanying attribute table in OFR 2005-1305. View by opening .csv file in Excel</codesets>
+					</codesetd>
+				</attrdomv>
+				<attwidth Sync="TRUE">16</attwidth><atoutwid Sync="TRUE">16</atoutwid><attrtype Sync="TRUE">Character</attrtype></attr>
+			<attr>
+				<attrlabl>UNIT_LINK</attrlabl>
+				<attrdef>sgmc_label, preceded by 2-letter state abbreviation); provides a unique identifier</attrdef>
+				<attrdefs>Steve Ludington</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>CAunits</codesetn>
+						<codesets>Accompanying attribute table in OFR 2005-1305. View by opening .csv file in Excel</codesets>
+					</codesetd>
+				</attrdomv>
+				<attwidth Sync="TRUE">18</attwidth><atoutwid Sync="TRUE">18</atoutwid><attrtype Sync="TRUE">Character</attrtype></attr>
+			<attr>
+				<attrlabl>SOURCE</attrlabl>
+				<attrdef>a coded reference citation indicating source used</attrdef>
+				<attrdefs>Steve Ludington</attrdefs>
+				<attrdomv>
+					<edom>
+						<edomv>CA001</edomv>
+						<edomvd>from original source coverage</edomvd>
+					</edom>
+				</attrdomv>
+				<attrdomv>
+					<edom>
+						<edomv>CA201</edomv>
+						<edomvd>new polygons created to conform to printed map</edomvd>
+					</edom>
+				</attrdomv>
+				<attrdomv>
+					<edom>
+						<edomv>CA202</edomv>
+						<edomvd>polygons whose labels were changed to conform to printed map</edomvd>
+					</edom>
+				</attrdomv>
+				<attwidth Sync="TRUE">6</attwidth><atoutwid Sync="TRUE">6</atoutwid><attrtype Sync="TRUE">Character</attrtype></attr>
+			<attr>
+				<attrlabl>UNIT_AGE</attrlabl>
+				<attrdef>free-form field best representing geologic age of unit</attrdef>
+				<attrdefs>Steve Ludington</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>CAage</codesetn>
+						<codesets>Accompanying attribute table in OFR 2005-1305. View by opening .csv file in Excel</codesets>
+					</codesetd>
+				</attrdomv>
+				<attwidth Sync="TRUE">60</attwidth><atoutwid Sync="TRUE">60</atoutwid><attrtype Sync="TRUE">Character</attrtype></attr>
+			<attr>
+				<attrlabl>ROCKTYPE1</attrlabl>
+				<attrdef>most abundant lithology in map unit</attrdef>
+				<attrdefs>Steve Ludington</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>CAunits</codesetn>
+						<codesets>Accompanying attribute table in OFR 2005-1305. View by opening .csv file in Excel</codesets>
+					</codesetd>
+				</attrdomv>
+				<attwidth Sync="TRUE">40</attwidth><atoutwid Sync="TRUE">40</atoutwid><attrtype Sync="TRUE">Character</attrtype></attr>
+			<attr>
+				<attrlabl>ROCKTYPE2</attrlabl>
+				<attrdef>second most abundant lithology in map unit</attrdef>
+				<attrdefs>Steve Ludington</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>CAunits</codesetn>
+						<codesets>Accompanying attribute table in OFR 2005-1305. View by opening .csv file in Excel</codesets>
+					</codesetd>
+				</attrdomv>
+				<attwidth Sync="TRUE">40</attwidth><atoutwid Sync="TRUE">40</atoutwid><attrtype Sync="TRUE">Character</attrtype></attr>
+		</detailed>
+		<overview></overview>
+	</eainfo>
+	<distinfo>
+		<distrib>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>U.S. Geological Survey Information Services</cntorg>
+				</cntorgp>
+				<cntaddr>
+					<addrtype>mailing address</addrtype>
+					<address>U.S. Geological Survey, 507 National Center</address>
+					<city>Reston</city>
+					<state>VA</state>
+					<postal>20192</postal>
+					<country>USA</country>
+				</cntaddr>
+				<cntvoice>1.800.ASK.USGS</cntvoice>
+				<cntvoice>703.648.5953</cntvoice>
+				<cntemail>http://www.usgs.gov/contact/</cntemail>
+			</cntinfo>
+		</distrib>
+		<resdesc>U.S. Geological Survey Open-File Report OFR 2005-1305</resdesc>
+		<distliab>This report is preliminary and has not been reviewed for conformity with U.S. Geological Survey editorial standards, nor with the North American Stratigraphic Code. Any use of trade, product, or firm names is for descriptive purposes only and does not imply endorsement by the U.S. Geological Survey. Although these data have been used by the U.S. Geological Survey, and imported into appropriate software, no warranty, express or implied, is made by the U.S. Geological Survey as to how successfully or accurately the data can be imported into specific application software running on specific hardware platforms. The fact of distribution shall not constitute any such warranty, and no responsibility is assumed by the U.S. Geological Survey in connection therewith. This data is not meant to be used or displayed at scales substantially larger than 1:500,000.</distliab>
+		<stdorder>
+			<digform>
+				<digtinfo>
+					<formname>ArcInfo Export</formname>
+					<formvern>8.3</formvern>
+					<formcont>geologic units and structural features</formcont>
+					<transize>21.792</transize>
+					<dssize Sync="TRUE">21.035</dssize></digtinfo>
+				<digtopt>
+					<onlinopt>
+						<computer>
+							<networka>
+								<networkr>http://pubs.usgs.gov/of/2005/1305</networkr>
+							</networka>
+						</computer>
+					</onlinopt>
+				</digtopt>
+			</digform>
+			<fees>none</fees>
+		</stdorder>
+	</distinfo>
+	<metainfo>
+		<metd>20050816</metd>
+		<metc>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>U.S. Geological Survey</cntorg>
+					<cntper>Steve Ludington</cntper>
+				</cntorgp>
+				<cntpos>geologist</cntpos>
+				<cntaddr>
+					<addrtype>mailing address</addrtype>
+					<address>USGS, MS 901</address>
+					<address>345 Middlefield Road</address>
+					<city>Menlo Park</city>
+					<state>CA</state>
+					<postal>94025</postal>
+					<country>USA</country>
+				</cntaddr>
+				<cntvoice>650.329.5371</cntvoice>
+				<cntemail>slud@usgs.gov</cntemail>
+			</cntinfo>
+		</metc>
+		<metstdn>FGDC Content Standards for Digital Geospatial Metadata</metstdn>
+		<metstdv>FGDC-STD-001-1998</metstdv>
+		<mettc>local time</mettc>
+		<metextns>
+			<onlink>http://www.esri.com/metadata/esriprof80.html</onlink>
+			<metprof>ESRI Metadata Profile</metprof>
+		</metextns>
+		<langmeta Sync="TRUE">en</langmeta><metextns><onlink Sync="TRUE">http://www.esri.com/metadata/esriprof80.html</onlink><metprof Sync="TRUE">ESRI Metadata Profile</metprof></metextns></metainfo>
+	<Esri><CreaDate>20071130</CreaDate><CreaTime>11134700</CreaTime><SyncOnce>FALSE</SyncOnce><ModDate>20061102</ModDate><ModTime>15204000</ModTime><SyncDate>20061102</SyncDate><SyncTime>15204000</SyncTime><MetaID>{B4FB26C6-E0FE-4D56-BCDB-AA4051A5453E}</MetaID></Esri><mdDateSt Sync="TRUE">20061102</mdDateSt><dataIdInfo><envirDesc Sync="TRUE">Microsoft Windows XP Version 5.1 (Build 2600) Service Pack 2; ESRI ArcCatalog 9.1.0.722</envirDesc><dataLang><languageCode Sync="TRUE" value="en"></languageCode></dataLang><idCitation><resTitle Sync="TRUE">cageol_lcc</resTitle><presForm><PresFormCd Sync="TRUE" value="005"></PresFormCd></presForm></idCitation><spatRpType><SpatRepTypCd Sync="TRUE" value="001"></SpatRepTypCd></spatRpType><dataExt><geoEle><GeoBndBox esriExtentType="native"><westBL Sync="TRUE">-2161573.559731</westBL><eastBL Sync="TRUE">-1293542.828006</eastBL><northBL Sync="TRUE">5265118.553717</northBL><southBL Sync="TRUE">4039905.581245</southBL><exTypeCode Sync="TRUE">1</exTypeCode></GeoBndBox></geoEle></dataExt><geoBox esriExtentType="decdegrees"><westBL Sync="TRUE">-126.547297</westBL><eastBL Sync="TRUE">-113.864118</eastBL><northBL Sync="TRUE">43.759309</northBL><southBL Sync="TRUE">31.258819</southBL><exTypeCode Sync="TRUE">1</exTypeCode></geoBox></dataIdInfo><mdLang><languageCode Sync="TRUE" value="en"></languageCode></mdLang><mdStanName Sync="TRUE">ISO 19115 Geographic Information - Metadata</mdStanName><mdStanVer Sync="TRUE">DIS_ESRI1.0</mdStanVer><mdChar><CharSetCd Sync="TRUE" value="004"></CharSetCd></mdChar><mdHrLv><ScopeCd Sync="TRUE" value="005"></ScopeCd></mdHrLv><mdHrLvName Sync="TRUE">dataset</mdHrLvName><distInfo><distributor><distorTran><onLineSrc><orDesc Sync="TRUE">002</orDesc><linkage Sync="TRUE">file://</linkage><protocol Sync="TRUE">Local Area Network</protocol></onLineSrc><transSize Sync="TRUE">21.035</transSize></distorTran><distorFormat><formatName Sync="TRUE">ArcInfo Coverage</formatName></distorFormat></distributor></distInfo><refSysInfo><RefSystem><refSysID><identCode Sync="TRUE">NAD_1927_Lambert_Conformal_Conic</identCode></refSysID></RefSystem></refSysInfo><spatRepInfo><VectSpatRep><topLvl><TopoLevCd Sync="TRUE" value="004"></TopoLevCd></topLvl><geometObjs Name="arc"><geoObjTyp><GeoObjTypCd Sync="TRUE" value="003"></GeoObjTypCd></geoObjTyp><geoObjCnt Sync="TRUE">52795</geoObjCnt></geometObjs><geometObjs Name="label"><geoObjTyp><GeoObjTypCd Sync="TRUE" value="004"></GeoObjTypCd></geoObjTyp><geoObjCnt Sync="TRUE">12239</geoObjCnt></geometObjs><geometObjs Name="polygon"><geoObjTyp><GeoObjTypCd Sync="TRUE" value="002"></GeoObjTypCd></geoObjTyp><geoObjCnt Sync="TRUE">12239</geoObjCnt></geometObjs><geometObjs Name="tic"><geoObjTyp><GeoObjTypCd Sync="TRUE" value="004"></GeoObjTypCd></geoObjTyp><geoObjCnt Sync="TRUE">37</geoObjCnt></geometObjs><geometObjs Name="annotation"><geoObjTyp><GeoObjTypCd Sync="TRUE" value="004"></GeoObjTypCd></geoObjTyp><geoObjCnt Sync="TRUE">0</geoObjCnt></geometObjs><geometObjs Name="link"><geoObjTyp><GeoObjTypCd Sync="TRUE" value="003"></GeoObjTypCd></geoObjTyp><geoObjCnt Sync="TRUE">0</geoObjCnt></geometObjs></VectSpatRep></spatRepInfo></metadata>
