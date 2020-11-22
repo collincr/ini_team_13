@@ -280,7 +280,7 @@ def create_scatter_plot():
                       "Latitude: %{lat}°<br>"
                       "Longitude: %{lon}°<br>"
                       "Isostatic Anomaly: %{customdata[0]} mGal<br>"
-                      "Elevation: %{customdata[2]} m<extra></extra>",
+                      "Elevation: %{customdata[2]} ft<extra></extra>",
         name="stations",
     ))
     fig.update_layout(mapbox_layers=[
@@ -413,7 +413,7 @@ def update_figure(value):
             uirevision=True,
         ),
         margin={"r": 0, "t": 30, "l": 0, "b": 0},
-        height=800,
+        height=700,
     )
     return fig
 
@@ -515,13 +515,14 @@ def update_charts(clickData, selected_data, clicks, value):
     )
 
     fig.update(layout=layout)
+    fig.update(layout=dict(title=dict(text="Transect",x=0.5)))
 
     # Set x-axis title
-    fig.update_xaxes(title_text="distance (m)")
+    fig.update_xaxes(title_text="Distance (m)")
 
     # Set y-axes titles
-    fig.update_yaxes(title_text="gravity (mGal)", secondary_y=False)
-    fig.update_yaxes(title_text="elevation (ft)", secondary_y=True)
+    fig.update_yaxes(title_text="Gravity (mGal)", secondary_y=False)
+    fig.update_yaxes(title_text="Elevation (ft)", secondary_y=True)
 
     if task4_type is 1:
         if not selected_data:
