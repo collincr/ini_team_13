@@ -65,8 +65,7 @@ In addition, you can interact with the map to view the transect or the distribut
 """
 
 transect_intro_text = """
-These two charts show how gravity and elevation vary along a line. You can select any points on the map and clear the data by clicking the "CLEAR TRANSECT
-DATA" button.
+These two charts show how gravity and elevation vary along a line. You can select any points on the map and clear the data by clicking the "CLEAR SELECTED DATA" button above the map.
 """
 
 task4_intro_text = """
@@ -80,7 +79,7 @@ layer_selection_intro_text = """
 You can select any of the three types of visualizations. 
 If you choose Scatter Plot, you can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
 You can also use the box select tool in the menu bar and switch the ranking type to box select to select multiple points at a time.
-To clear the data you have selected, click the "CLEAR DATA" button below.
+To clear the data you have selected, click the "CLEAR SELECTED DATA" button below.
 """
 
 help_text = """
@@ -127,7 +126,7 @@ def main_row():
         html.Div([
             layer_selection_intro(),
             layer_selection_radio_group(),
-            html.Button('Clear data', id='button-transect', n_clicks=0),
+            html.Button('Clear selected data', id='button-transect', n_clicks=0),
             main_map()
         ],
             id="main-left", className="seven columns"),
@@ -307,15 +306,18 @@ def create_density_heatmap():
         radius=10,  # default: 30
         colorscale='spectral_r',
         colorbar=dict(
-            title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom"),
+            title=dict(text="Density of<br>Stations", side="bottom"),
             outlinewidth=0,
+            tickmode='array',
+            ticktext=['low', 'high'],
+            tickvals=[1, 99],
         ),
         customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
         hovertemplate="Station ID: %{customdata[1]}<br>"
                       "Latitude: %{lat}°<br>"
                       "Longitude: %{lon}°<br>"
                       "Isostatic Anomaly: %{customdata[0]} mGal<br>"
-                      "Elevation: %{customdata[2]} m<extra></extra>",
+                      "Elevation: %{customdata[2]} ft<extra></extra>",
         name="stations",
     ))
     fig.update_layout(mapbox_layers=[
@@ -335,18 +337,16 @@ def create_density_heatmap():
 
 # create the image overlay layer
 def create_image_overlay():
-    fig = go.Figure(go.Scattermapbox(
+    fig = go.Figure(go.Densitymapbox(
         lat=stations.latitude,
         lon=stations.longitude,
-        mode='markers',
-        marker=go.scattermapbox.Marker(
-            size=4,
-            color=stations.isostatic_anom,
-            colorscale='spectral_r',
-            showscale=True,
-            opacity=0,
-            colorbar=dict(title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom")),
+        z=stations.isostatic_anom,
+        colorscale='spectral_r',
+        colorbar=dict(
+            title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom"),
+            outlinewidth=0,
         ),
+        opacity=0,
         hoverinfo='skip',
     ))
     fig.update_layout(mapbox_layers=[
