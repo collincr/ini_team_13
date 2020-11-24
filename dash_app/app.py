@@ -56,6 +56,49 @@ with open('data/nvfault.geojson') as json_file:
 
 mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2xkb21kIn0.EfyVLEhdszs_Yzdz86hXSA"
 
+county_border_layer = {
+    "sourcetype": "vector",
+    "sourcelayer": "County",
+    "type": "line",
+    "opacity": 0.1,
+    "color": "grey",
+    "source": [
+        "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+    ]
+}
+
+ca_raster_layer = {
+    "sourcetype": "image",
+    "source": get_ca_raster_image_from_file(),
+    "coordinates": get_ca_boundary(),
+    'opacity': 0.3
+}
+
+nv_raster_layer = {
+    "sourcetype": "image",
+    "source": get_nv_raster_image_from_file(),
+    "coordinates": get_nv_boundary(),
+    'opacity': 0.3
+}
+
+ca_fault_layer = {
+    "sourcetype": "geojson",
+    "sourcelayer": "fault",
+    "type": "line",
+    "color": "grey",
+    "opacity": 0.8,
+    "source": cafault_json,
+}
+
+nv_fault_layer = {
+    "sourcetype": "geojson",
+    "sourcelayer": "fault",
+    "type": "line",
+    "color": "grey",
+    "opacity": 0.8,
+    "source": nvfault_json,
+}
+
 intro_text = """
 **Introduction**
 
@@ -133,6 +176,7 @@ def main_row():
         html.Div([
             layer_selection_intro(),
             layer_selection_radio_group(),
+            fault_selection_radio_group(),
             html.Button('Clear selected data', id='button-transect', n_clicks=0),
             main_map()
         ],
@@ -192,6 +236,22 @@ def layer_selection_radio_group():
             ],
             labelStyle={"display": "inline-block"},
             value='scatterplot',
+        ),
+    ], className="radio-group")
+
+
+# fault selection radio buttons
+def fault_selection_radio_group():
+    return html.Div(children=[
+        html.Span("Add fault dataset as a layer: "),
+        dcc.RadioItems(
+            id="display-fault",
+            options=[
+                {'label': 'Yes', 'value': 'yes-display'},
+                {'label': 'No', 'value': 'no-display'},
+            ],
+            labelStyle={"display": "inline-block"},
+            value='no-display',
         ),
     ], className="radio-group")
 
@@ -270,7 +330,7 @@ def task4_row():
 
 
 # create the scatter plot layer
-def create_scatter_plot():
+def create_scatter_plot(withFault=False):
     fig = go.Figure(go.Scattermapbox(
         lat=stations.latitude,
         lon=stations.longitude,
@@ -290,23 +350,15 @@ def create_scatter_plot():
                       "Elevation: %{customdata[2]} ft<extra></extra>",
         name="stations",
     ))
-    fig.update_layout(mapbox_layers=[
-        {
-            "sourcetype": "vector",
-            "sourcelayer": "County",
-            "type": "line",
-            "opacity": 0.1,
-            "color": "grey",
-            "source": [
-                "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
-            ]
-        }],
-    )
+    if (withFault):
+        fig.update_layout(mapbox_layers=[county_border_layer, ca_fault_layer, nv_fault_layer])
+    else:
+        fig.update_layout(mapbox_layers=[county_border_layer])
     return fig
 
 
 # create the density heatmap layer
-def create_density_heatmap():
+def create_density_heatmap(withFault=False):
     fig = go.Figure(go.Densitymapbox(
         lat=stations.latitude,
         lon=stations.longitude,
@@ -328,23 +380,15 @@ def create_density_heatmap():
                       "Elevation: %{customdata[2]} ft<extra></extra>",
         name="stations",
     ))
-    fig.update_layout(mapbox_layers=[
-        {
-            "sourcetype": "vector",
-            "sourcelayer": "County",
-            "type": "line",
-            "opacity": 0.1,
-            "color": "grey",
-            "source": [
-                "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
-            ]
-        }],
-    )
+    if (withFault):
+        fig.update_layout(mapbox_layers=[county_border_layer, ca_fault_layer, nv_fault_layer])
+    else:
+        fig.update_layout(mapbox_layers=[county_border_layer])
     return fig
 
 
 # create the image overlay layer
-def create_image_overlay():
+def create_image_overlay(withFault=False):
     fig = go.Figure(go.Densitymapbox(
         lat=stations[:1].latitude,
         lon=stations[:1].longitude,
@@ -357,30 +401,10 @@ def create_image_overlay():
         opacity=0,
         hoverinfo='skip',
     ))
-    fig.update_layout(mapbox_layers=[
-        {
-            "sourcetype": "image",
-            "source": get_ca_raster_image_from_file(),
-            "coordinates": get_ca_boundary(),
-            'opacity': 0.3
-        },
-        {
-            "sourcetype": "image",
-            "source": get_nv_raster_image_from_file(),
-            "coordinates": get_nv_boundary(),
-            'opacity': 0.3
-        },
-        {
-            "sourcetype": "vector",
-            "sourcelayer": "County",
-            "type": "line",
-            "opacity": 0.1,
-            "color": "grey",
-            "source": [
-                "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
-            ]
-        }],
-    )
+    if (withFault):
+        fig.update_layout(mapbox_layers=[county_border_layer, ca_fault_layer, nv_fault_layer, ca_raster_layer, nv_raster_layer])
+    else:
+        fig.update_layout(mapbox_layers=[county_border_layer, ca_raster_layer, nv_raster_layer])
     return fig
 
 def create_fault_dataset():
@@ -391,34 +415,7 @@ def create_fault_dataset():
         showscale=False,
         hoverinfo='skip',
     ))
-    fig.update_layout(mapbox_layers=[
-        {
-            "sourcetype": "vector",
-            "sourcelayer": "County",
-            "type": "line",
-            "opacity": 0.1,
-            "color": "grey",
-            "source": [
-                "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
-            ]
-        },
-        {
-            "sourcetype": "geojson",
-            "sourcelayer": "fault",
-            "type": "line",
-            "color": "grey",
-            "opacity": 0.8,
-            "source": cafault_json,
-        },
-        {
-            "sourcetype": "geojson",
-            "sourcelayer": "fault",
-            "type": "line",
-            "color": "grey",
-            "opacity": 0.8,
-            "source": nvfault_json,
-        }],
-    )
+    fig.update_layout(mapbox_layers=[county_border_layer, ca_fault_layer, nv_fault_layer])
     return fig
 
 
@@ -435,14 +432,18 @@ app.layout = html.Div(children=[
 # change the layer of the map
 @app.callback(
     Output('map', 'figure'),
-    [Input('map-type', 'value')])
-def update_figure(value):
+    [Input('map-type', 'value')],
+    [Input('display-fault', 'value')])
+def update_figure(value, with_fault_string):
+    with_fault_boolean = False
+    if (with_fault_string == 'yes-display'):
+        with_fault_boolean = True
     if value == 'scatterplot':
-        fig = create_scatter_plot()
+        fig = create_scatter_plot(with_fault_boolean)
     elif value == 'heatmap':
-        fig = create_density_heatmap()
+        fig = create_density_heatmap(with_fault_boolean)
     elif value =='interpolated':
-        fig = create_image_overlay()
+        fig = create_image_overlay(with_fault_boolean)
     else:
         fig = create_fault_dataset()
 
@@ -463,7 +464,6 @@ def update_figure(value):
         height=700,
     )
     return fig
-
 
 # update the charts
 @app.callback([
@@ -499,7 +499,7 @@ def update_charts(clickData, selected_data, clicks, value):
         bargap=0.1,
         xaxis_type="category",
         xaxis_title="Station ID",
-        yaxis_title="Isostatic Anomaly"
+        yaxis_title="Isostatic Anomaly (mGal)"
     )
 
     global df_task2, df_task4, last_clicks, origin, distance
@@ -568,7 +568,7 @@ def update_charts(clickData, selected_data, clicks, value):
     fig.update_xaxes(title_text="Distance (m)")
 
     # Set y-axes titles
-    fig.update_yaxes(title_text="Gravity (mGal)", secondary_y=False)
+    fig.update_yaxes(title_text="Isostatic Anomaly (mGal)", secondary_y=False)
     fig.update_yaxes(title_text="Elevation (ft)", secondary_y=True)
 
     if task4_type is 1:
