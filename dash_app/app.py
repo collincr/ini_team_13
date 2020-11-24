@@ -14,6 +14,7 @@ from plotly.subplots import make_subplots
 import pandas as pd
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
+import json
 
 from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_raster_image_from_file, \
     get_nv_raster_image_from_file
@@ -46,6 +47,12 @@ df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
 station_num = df_task4.shape[0]
 remain_num = [i * 10 for i in list(range(int(station_num / 10)))]
 df_task4 = df_task4.take(remain_num)
+
+with open('data/cafault.geojson') as json_file:
+    cafault_json = json.load(json_file)
+
+with open('data/nvfault.geojson') as json_file:
+    nvfault_json = json.load(json_file)
 
 mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2xkb21kIn0.EfyVLEhdszs_Yzdz86hXSA"
 
@@ -181,6 +188,7 @@ def layer_selection_radio_group():
                 {'label': 'Scatter Plot', 'value': 'scatterplot'},
                 {'label': 'Density Heatmap', 'value': 'heatmap'},
                 {'label': 'Interpolated Plot', 'value': 'interpolated'},
+                {'label': 'Fault Dataset', 'value': 'fault'},
             ],
             labelStyle={"display": "inline-block"},
             value='scatterplot',
@@ -338,8 +346,8 @@ def create_density_heatmap():
 # create the image overlay layer
 def create_image_overlay():
     fig = go.Figure(go.Densitymapbox(
-        lat=stations.latitude,
-        lon=stations.longitude,
+        lat=stations[:1].latitude,
+        lon=stations[:1].longitude,
         z=stations.isostatic_anom,
         colorscale='spectral_r',
         colorbar=dict(
@@ -372,7 +380,44 @@ def create_image_overlay():
                 "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
             ]
         }],
-        # showlegend=True, # let users choose whether to show the dots or not
+    )
+    return fig
+
+def create_fault_dataset():
+    fig = go.Figure(go.Densitymapbox(
+        lat=stations[:1].latitude,
+        lon=stations[:1].longitude,
+        opacity=0,
+        showscale=False,
+        hoverinfo='skip',
+    ))
+    fig.update_layout(mapbox_layers=[
+        {
+            "sourcetype": "vector",
+            "sourcelayer": "County",
+            "type": "line",
+            "opacity": 0.1,
+            "color": "grey",
+            "source": [
+                "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
+            ]
+        },
+        {
+            "sourcetype": "geojson",
+            "sourcelayer": "fault",
+            "type": "line",
+            "color": "grey",
+            "opacity": 0.8,
+            "source": cafault_json,
+        },
+        {
+            "sourcetype": "geojson",
+            "sourcelayer": "fault",
+            "type": "line",
+            "color": "grey",
+            "opacity": 0.8,
+            "source": nvfault_json,
+        }],
     )
     return fig
 
@@ -396,8 +441,10 @@ def update_figure(value):
         fig = create_scatter_plot()
     elif value == 'heatmap':
         fig = create_density_heatmap()
-    else:
+    elif value =='interpolated':
         fig = create_image_overlay()
+    else:
+        fig = create_fault_dataset()
 
     fig.update_layout(
         hovermode='closest',
