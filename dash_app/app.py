@@ -18,6 +18,7 @@ import json
 
 from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_raster_image_from_file, \
     get_nv_raster_image_from_file
+import texts
 
 external_stylesheets = [
     'https://codepen.io/chriddyp/pen/bWLwgP.css',
@@ -99,68 +100,6 @@ nv_fault_layer = {
     "source": nvfault_json,
 }
 
-intro_text = """
-**Introduction**
-
-This application is an interactive geospacial data visualization tool for you to discover the gravity anomaly data in California and Nevada.
-
-Gravity is not the same everywhere on Earth, but changes with many known and measurable factors, such as tidal forces. 
-A sequence of gravity corrections are applied to the original gravity reading and result in various named gravity anomalies. 
-There are mainly four kinds of gravity anomalies: observed gravity anomaly, free air gravity anomaly, Bouguer gravity anomaly, and isostatic gravity anomaly. 
-You can learn more about gravity anomalies from [USGS's publication here](https://pubs.usgs.gov/fs/fs-0239-95/fs-0239-95.pdf).
-
-In this application, you can select different types of visualizations to explore the distribution of isostatic anomaly values and the metadata from the stations.
-In addition, you can interact with the map to view the transect or the distribution of the data according to the instrutions in each section.
-
-"""
-
-transect_intro_text = """
-These two charts show how gravity and elevation vary along a line. You can select any points on the map and clear the data by clicking the "CLEAR SELECTED DATA" button above the map.
-"""
-
-task4_intro_text = """
-Here you can select multiple stations on the map, and see how one station compares to all the others.
-
-Click one station on the map to highlight it in the graph below.
-
-"""
-
-layer_selection_intro_text = """
-You can select any of the three types of visualizations. 
-If you choose Scatter Plot, you can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
-You can also use the box select tool in the menu bar and switch the ranking type to box select to select multiple points at a time.
-To clear the data you have selected, click the "CLEAR SELECTED DATA" button below.
-"""
-
-help_text = """
-**Scatter Plot**
-
-The scatter plot displays all the data points in the dataset on the map according to their isostatic anomaly value. 
-It is a direct way to discover all the data points and view the spacial distribution of these points.
-The color of each point is defined by the isostatic anomaly value according to the colorscale.
-
-You can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
-You can also use the "box select" from the menubar at the top of the map to select a set of stations.
-
----
-
-**Density Heatmap**
-
-In the density map, each data point in the dataset is represented as a point smoothed with a given radius of influence.
-It shows the patial distribution of the stations that the datasets are collection from.
-You can tell which areas that are sampled more sparsely vs. the areas that are sampled more densely from this map.
-A potential application of this map is to inform viewers which areas should be prioritized for collecting new data.  
-
----
-
-**Interpolated Plot**
-
-
-The interpolated plot connects data points by estimating values within the gaps between stations.
-This is done by doing continuous interpolation on the original dataset.
-From this plot, you can get a rough idea about the gravity anomaly value of the unsampled areas.
-"""
-
 
 # title
 def title():
@@ -177,7 +116,7 @@ def main_row():
             layer_selection_intro(),
             layer_selection_radio_group(),
             fault_selection_radio_group(),
-            html.Button('Clear selected data', id='button-transect', n_clicks=0),
+            html.Button('Clear selected data', id='button-transect', style={"display": "block"}, n_clicks=0),
             main_map()
         ],
             id="main-left", className="seven columns"),
@@ -193,7 +132,7 @@ def main_row():
 
 # intro
 def intro_row():
-    return html.Div(id="intro-text", children=dcc.Markdown(intro_text))
+    return html.Div(id="intro-text", children=dcc.Markdown(texts.intro_text))
 
 
 # layer selection introduction
@@ -208,7 +147,7 @@ def layer_selection_intro():
                 dbc.Modal(
                     [
                         dbc.ModalHeader("Visualization Type Instructions"),
-                        dbc.ModalBody(dcc.Markdown(help_text)),
+                        dbc.ModalBody(dcc.Markdown(texts.help_text)),
                         dbc.ModalFooter(
                             dbc.Button("Close", id="close-centered", className="ml-auto")
                         ),
@@ -216,7 +155,7 @@ def layer_selection_intro():
                     id="modal-centered",
                     centered=True,
                 ),
-                html.Div(dcc.Markdown(layer_selection_intro_text)),
+                html.Div(dcc.Markdown(texts.layer_selection_intro_text)),
             ],
             id="layer-help"
         )
@@ -230,7 +169,7 @@ def layer_selection_radio_group():
             id="map-type",
             options=[
                 {'label': 'Scatter Plot', 'value': 'scatterplot'},
-                {'label': 'Density Heatmap', 'value': 'heatmap'},
+                {'label': 'Spatial Density Heatmap', 'value': 'heatmap'},
                 {'label': 'Interpolated Plot', 'value': 'interpolated'},
                 {'label': 'Fault Dataset', 'value': 'fault'},
             ],
@@ -243,28 +182,27 @@ def layer_selection_radio_group():
 # fault selection radio buttons
 def fault_selection_radio_group():
     return html.Div(children=[
-        html.Span("Add fault dataset as a layer: "),
-        dcc.RadioItems(
+        html.Span("Extra layers: "),
+        dcc.Checklist(
             id="display-fault",
             options=[
-                {'label': 'Yes', 'value': 'yes-display'},
-                {'label': 'No', 'value': 'no-display'},
+                {'label': 'Fault dataset', 'value': 'fault'},
             ],
+            value=[],
             labelStyle={"display": "inline-block"},
-            value='no-display',
-        ),
+            style={'display': 'inline'},
+        )  
     ], className="radio-group")
 
 
 # t4
 def t4_selection_radio_group():
     return html.Div(children=[
-        html.Div('How you want to select stations:', className="title"),
         dcc.RadioItems(
             id="t4_type",
             options=[
-                {'label': 'Click each station on map', 'value': 0},
-                {'label': 'Select box', 'value': 1},
+                {'label': 'Click each station individually', 'value': 0},
+                {'label': 'Use the box select tool', 'value': 1},
             ],
             labelStyle={"display": "inline-block"},
             value=0,
@@ -296,7 +234,7 @@ def transect_intro():
             #     placement="right",
             # ),
         ], className="title"),
-        html.Div(id="transect-intro-text", children=dcc.Markdown(transect_intro_text)),
+        html.Div(id="transect-intro-text", children=dcc.Markdown(texts.transect_intro_text)),
     ], id="transect-intro")
 
 
@@ -305,14 +243,14 @@ def task4_row():
     return html.Div([
         html.Div(children=[
             html.P('Distribution and ranking of gravity anomaly values', className="title-with-helper"),
-            # html.A(className="far fa-question-circle helper-icon", id="task4-helper"),
-            # dbc.Tooltip(
-            #     dbc.PopoverBody(dcc.Markdown("something that you want to put in the tooltip")),
-            #     target="task4-helper",
-            #     placement="right",
-            # ),
+            html.A(className="far fa-question-circle helper-icon", id="task4-helper"),
+            dbc.Tooltip(
+                dbc.PopoverBody(dcc.Markdown(texts.task4_helper_text)),
+                target="task4-helper",
+                placement="top",
+            ),
         ], className="title"),
-        html.Div(id="task4-intro-text", children=dcc.Markdown(task4_intro_text)),
+        html.Div(id="task4-intro-text", children=dcc.Markdown(texts.task4_intro_text)),
         t4_selection_radio_group(),
         dcc.Graph(
             id='task-4',
@@ -336,7 +274,7 @@ def create_scatter_plot(withFault=False):
         lon=stations.longitude,
         mode='markers',
         marker=go.scattermapbox.Marker(
-            size=4,
+            size=5,
             color=stations.isostatic_anom,
             colorscale='spectral_r',
             showscale=True,
@@ -434,16 +372,16 @@ app.layout = html.Div(children=[
     Output('map', 'figure'),
     [Input('map-type', 'value')],
     [Input('display-fault', 'value')])
-def update_figure(value, with_fault_string):
-    with_fault_boolean = False
-    if (with_fault_string == 'yes-display'):
-        with_fault_boolean = True
+def update_figure(value, fault_checklist):
+    with_fault = False
+    if (fault_checklist == ['fault']):
+        with_fault= True
     if value == 'scatterplot':
-        fig = create_scatter_plot(with_fault_boolean)
+        fig = create_scatter_plot(with_fault)
     elif value == 'heatmap':
-        fig = create_density_heatmap(with_fault_boolean)
+        fig = create_density_heatmap(with_fault)
     elif value =='interpolated':
-        fig = create_image_overlay(with_fault_boolean)
+        fig = create_image_overlay(with_fault)
     else:
         fig = create_fault_dataset()
 
