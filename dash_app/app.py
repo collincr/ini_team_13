@@ -37,7 +37,7 @@ server = app.server
 stations = pd.read_csv("data/ca_nvda_grav.csv").sort_values('isostatic_anom', ascending=False)
 stations['station_id'] = stations['station_id'].str.strip()
 
-df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'gravity'])
+df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom'])
 gdf = gpd.read_file("data/ca_nvda_grav.geojson")
 gdf = gdf.to_crs('EPSG:2163')
 origin = []
@@ -45,9 +45,11 @@ distance = 0
 last_clicks = 0
 
 df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
+df_task4_box = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
 station_num = df_task4.shape[0]
 remain_num = [i * 10 for i in list(range(int(station_num / 10)))]
 df_task4 = df_task4.take(remain_num)
+df_task4_box = df_task4.take(remain_num)
 
 with open('data/cafault.geojson') as json_file:
     cafault_json = json.load(json_file)
@@ -122,7 +124,7 @@ def main_row():
             id="main-left", className="seven columns"),
         html.Div([
             transect_intro(),
-            dcc.Graph(id='transect-gravity', className="transect-graph"),
+            dcc.Graph(id='transect-graph', className="transect-graph"),
             html.Hr(),
             task4_row()
         ],
@@ -201,11 +203,11 @@ def t4_selection_radio_group():
         dcc.RadioItems(
             id="t4_type",
             options=[
-                {'label': 'Click each station individually', 'value': 0},
-                {'label': 'Use the box select tool', 'value': 1},
+                {'label': 'Click each station individually', 'value': 'click'},
+                {'label': 'Use the box select tool', 'value': 'box'},
             ],
             labelStyle={"display": "inline-block"},
-            value=0,
+            value='click',
         ),
     ], className="radio-group")
 
@@ -404,31 +406,22 @@ def update_figure(value, fault_checklist):
     return fig
 
 # update the charts
-@app.callback([
-    Output('transect-gravity', 'figure'),
-    Output('task-4', 'figure')],
+@app.callback(
+    [Output('transect-graph', 'figure'),
+     Output('task-4', 'figure')],
     [Input('map', 'clickData'),
      Input('map', 'selectedData'),
      Input('button-transect', 'n_clicks'),
-     Input('t4_type', 'value')
-     ])
+     Input('t4_type', 'value')]
+)
 def update_charts(clickData, selected_data, clicks, value):
-    # 0 : click, 1 : select box
     task4_type = value
-
-    # global cur_task4_type
-    # # 0 : click, 1 : select box
-    # if cur_task4_type != value:
-    #     clicks = 0
-    # task4_type = value
 
     layout = dict(
         autosize=True,
         title=dict(x=0.5),
         margin=dict(l=0, r=0, b=0, t=40),
         xaxis_title=" distance (m)",
-        # paper_bgcolor="LightSteelBlue",
-        # plot_bgcolor="#e6ecf5",
         height=300
     )
 
@@ -437,26 +430,24 @@ def update_charts(clickData, selected_data, clicks, value):
         bargap=0.1,
         xaxis_type="category",
         xaxis_title="Station ID",
-        yaxis_title="Isostatic Anomaly (mGal)"
+        yaxis_title="Isostatic Anomaly (mGal)",
+        title=dict(text="Distribution and ranking", x=0.5),
     )
 
-    global df_task2, df_task4, last_clicks, origin, distance
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    global df_task2, df_task4, df_task4_box, last_clicks, origin, distance
+    transect_fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-    if task4_type is 0:
-        fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking')
-    elif task4_type is 1:
-        df_task4 = stations
+    task4_fig = px.bar(df_task4, x='station_id', y='isostatic_anom')
 
     if clicks != last_clicks:
         last_clicks = clicks
-        df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'gravity'])
+        df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom'])
+        df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
+        df_task4_box = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
         origin = []
         distance = 0
-
-        if task4_type is 0:
-            df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
-            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking')
+        clickData = None
+        selected_data = None
 
     elif clickData:
         station_id = clickData['points'][0]['customdata'][1]
@@ -467,12 +458,12 @@ def update_charts(clickData, selected_data, clicks, value):
             origin = station.geometry
         distance += origin.distance(station.geometry)
         df_task2 = df_task2.append({'distance': distance, 'elevation': clickData['points'][0]['customdata'][2],
-                                    'gravity': clickData['points'][0]['customdata'][0]}, ignore_index=True)
+                                    'isostatic_anom': clickData['points'][0]['customdata'][0]}, ignore_index=True)
         df_task2 = df_task2.sort_values('distance').reset_index(drop=True)
 
         origin = station.geometry
 
-        if task4_type is 0:
+        if task4_type == 'click':
             station_id = str(clickData['points'][0]['customdata'][1])
             iso = clickData['points'][0]['customdata'][0]
 
@@ -481,67 +472,62 @@ def update_charts(clickData, selected_data, clicks, value):
             df_task4 = df_task4.sort_values('isostatic_anom', ascending=False)
             df_task4 = df_task4.reset_index(drop=True)
 
-            colors = ["blue", ] * len(df_task4['station_id'])
+            colors = [px.colors.qualitative.Plotly[0], ] * len(df_task4['station_id'])
             to_be_change_color = df_task4[df_task4['station_id'] == station_id].index.item()
-            colors[to_be_change_color] = "crimson"
+            colors[to_be_change_color] = px.colors.qualitative.Plotly[1]
 
-            fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='Distribution and ranking',
-                          color="station_id", color_discrete_sequence=colors)  # color_discrete_map=m)
+            task4_fig = px.bar(df_task4, x='station_id', y='isostatic_anom', color="station_id", color_discrete_sequence=colors)
 
     # Add traces
-    fig.add_trace(
-        go.Scatter(x=df_task2.distance, y=df_task2.gravity, name="gravity"),
+    transect_fig.add_trace(
+        go.Scatter(x=df_task2.distance, y=df_task2.isostatic_anom, name="isostatic_anom"),
         secondary_y=False,
     )
 
-    fig.add_trace(
+    transect_fig.add_trace(
         go.Scatter(x=df_task2.distance, y=df_task2.elevation, name="elevation"),
         secondary_y=True,
     )
 
-    fig.update(layout=layout)
-    fig.update(layout=dict(title=dict(text="Transect",x=0.5)))
+    transect_fig.update(layout=layout)
+    transect_fig.update(layout=dict(title=dict(text="Transect",x=0.5)))
 
     # Set x-axis title
-    fig.update_xaxes(title_text="Distance (m)")
+    transect_fig.update_xaxes(title_text="Distance (m)")
 
     # Set y-axes titles
-    fig.update_yaxes(title_text="Isostatic Anomaly (mGal)", secondary_y=False)
-    fig.update_yaxes(title_text="Elevation (ft)", secondary_y=True)
+    transect_fig.update_yaxes(title_text="Isostatic Anomaly (mGal)", secondary_y=False)
+    transect_fig.update_yaxes(title_text="Elevation (ft)", secondary_y=True)
 
-    if task4_type is 1:
+    if task4_type == 'box':
         if not selected_data:
-            fig3 = px.bar(x=['a'], y=['a'])
-            return fig, fig3
-
-        df_task4 = stations
+            task4_fig = px.bar()
         if selected_data and selected_data['points']:
-            df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
             for point in selected_data['points']:
-                df_task4 = df_task4.append(
+                df_task4_box = df_task4_box.append(
                     {'isostatic_anom': point['customdata'][0], 'station_id': point['customdata'][1]}, ignore_index=True)
 
-        # Update bar chart
-        df_task4 = df_task4.sort_values('isostatic_anom', ascending=False)
-        df_task4 = df_task4.reset_index(drop=True)
-        fig3 = px.bar(x=list(range(df_task4.shape[0])), y=df_task4.isostatic_anom)
-        fig3.update_layout(bargap=0)
+            # Update bar chart
+            df_task4_box = df_task4_box.drop_duplicates()
+            df_task4_box = df_task4_box.sort_values('isostatic_anom', ascending=False)
+            df_task4_box = df_task4_box.reset_index(drop=True)
+            task4_fig = px.bar(x=df_task4_box.station_id, y=df_task4_box.isostatic_anom)
+            task4_fig.update_layout(bargap=0)
 
-        if clickData:
-            colors = ["blue", ] * len(df_task4['station_id'])
-            station_id = clickData['points'][0]['customdata'][1]
+            if clickData:
+                colors = [px.colors.qualitative.Plotly[0], ] * len(df_task4_box['station_id'])
+                station_id = clickData['points'][0]['customdata'][1]
 
-            if station_id in df_task4['station_id'].tolist():
-                to_be_change_color = df_task4[df_task4['station_id'] == station_id].index.item()
-                colors[to_be_change_color] = "crimson"
+                if station_id in df_task4_box['station_id'].tolist():
+                    to_be_change_color = df_task4_box[df_task4_box['station_id'] == station_id].index.item()
+                    colors[to_be_change_color] = px.colors.qualitative.Plotly[1]
 
-                fig3 = px.bar(df_task4, x='station_id', y='isostatic_anom', title='t4', color="station_id",
-                              color_discrete_sequence=colors)  # color_discrete_map=m)
+                    task4_fig = px.bar(df_task4_box, x='station_id', y='isostatic_anom', color="station_id", color_discrete_sequence=colors)
 
-    fig3.update(layout=layout)
-    fig3.update(layout=bar_layout)
+    task4_fig.update(layout=layout)
+    task4_fig.update(layout=bar_layout)
 
-    return fig, fig3
+    return transect_fig, task4_fig
 
 
 @app.callback(
