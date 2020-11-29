@@ -13,6 +13,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 from dash.dependencies import Input, Output, State
+from shapely.geometry import Point
 import dash_bootstrap_components as dbc
 import json
 
@@ -37,19 +38,8 @@ server = app.server
 stations = pd.read_csv("data/ca_nvda_grav.csv").sort_values('isostatic_anom', ascending=False)
 stations['station_id'] = stations['station_id'].str.strip()
 
-df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom'])
 gdf = gpd.read_file("data/ca_nvda_grav.geojson")
 gdf = gdf.to_crs('EPSG:2163')
-origin = []
-distance = 0
-last_clicks = 0
-
-df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
-df_task4_box = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
-station_num = df_task4.shape[0]
-remain_num = [i * 10 for i in list(range(int(station_num / 10)))]
-df_task4 = df_task4.take(remain_num)
-df_task4_box = df_task4.take(remain_num)
 
 with open('data/cafault.geojson') as json_file:
     cafault_json = json.load(json_file)
@@ -126,7 +116,8 @@ def main_row():
             transect_intro(),
             dcc.Graph(id='transect-graph', className="transect-graph"),
             html.Hr(),
-            task4_row()
+            task4_row(),
+            dcc.Store(id='store'), #, storage_type='session'
         ],
             id="main-right", className="five columns"),
     ], id="main-row")
@@ -151,10 +142,10 @@ def layer_selection_intro():
                         dbc.ModalHeader("Visualization Type Instructions"),
                         dbc.ModalBody(dcc.Markdown(texts.help_text)),
                         dbc.ModalFooter(
-                            dbc.Button("Close", id="close-centered", className="ml-auto")
+                            dbc.Button("Close", id="layer-helper-close", className="ml-auto")
                         ),
                     ],
-                    id="modal-centered",
+                    id="layer-helper-modal",
                     centered=True,
                 ),
                 html.Div(dcc.Markdown(texts.layer_selection_intro_text)),
@@ -244,29 +235,31 @@ def transect_intro():
 def task4_row():
     return html.Div([
         html.Div(children=[
-            html.P('Distribution and ranking of gravity anomaly values', className="title-with-helper"),
-            html.A(className="far fa-question-circle helper-icon", id="task4-helper"),
-            dbc.Tooltip(
-                dbc.PopoverBody(dcc.Markdown(texts.task4_helper_text)),
-                target="task4-helper",
-                placement="top",
-            ),
-        ], className="title"),
-        html.Div(id="task4-intro-text", children=dcc.Markdown(texts.task4_intro_text)),
+        html.Div(
+            [
+                html.Div(children=[
+                    html.P('Distribution and ranking of gravity anomaly values', className="title-with-helper"),
+                    html.A(className="far fa-question-circle helper-icon", id="task4-helper"),
+                ], className="title"),
+                dbc.Modal(
+                    [
+                        dbc.ModalHeader("Distribution and Ranking Graph Instructions"),
+                        dbc.ModalBody(dcc.Markdown(texts.task4_helper_text)),
+                        dbc.ModalFooter(
+                            dbc.Button("Close", id="task4-helper-close", className="ml-auto")
+                        ),
+                    ],
+                    id="task4-helper-modal",
+                    centered=True,
+                ),
+                html.Div(id="task4-intro-text", children=dcc.Markdown(texts.task4_intro_text)),
+            ],
+            id="task4-help"
+        ),
         t4_selection_radio_group(),
-        dcc.Graph(
-            id='task-4',
-            figure={
-                'data': [{
-                    'x': list(range(df_task4.shape[0])),
-                    'y': df_task4.isostatic_anom,
-                    'type': 'bar'
-                }],
-                'layout': {
-                    'bargap': 0
-                }
-            }
-        )], id='task4-section')
+        dcc.Graph(id='task-4')
+    ], id='task4-section')
+    ])
 
 
 # create the scatter plot layer
@@ -408,14 +401,25 @@ def update_figure(value, fault_checklist):
 # update the charts
 @app.callback(
     [Output('transect-graph', 'figure'),
-     Output('task-4', 'figure')],
+     Output('task-4', 'figure'),
+     Output('store', 'data')],
     [Input('map', 'clickData'),
      Input('map', 'selectedData'),
      Input('button-transect', 'n_clicks'),
-     Input('t4_type', 'value')]
+     Input('t4_type', 'value')],
+    State('store', 'data')
 )
-def update_charts(clickData, selected_data, clicks, value):
-    task4_type = value
+def update_charts(clickData, selected_data, clicks, task4_type, data):
+    # read the data from the store
+    empty_task2 = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom']).to_json(date_format='iso', orient='split')
+    empty_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id']).to_json(date_format='iso', orient='split')
+    data = data or {'last_clicks': 0, 'origin_x': 0, 'origin_y': 0, 'distance': 0, 'task2_df': empty_task2, 'task4_df': empty_task4, 'task4_box_df': empty_task4}
+    last_clicks = data['last_clicks']
+    origin = Point(data['origin_x'], data['origin_y'])
+    distance = data['distance']
+    df_task2 = pd.read_json(data['task2_df'], orient='split')
+    df_task4 = pd.read_json(data['task4_df'], orient='split')
+    df_task4_box = pd.read_json(data['task4_box_df'], orient='split')
 
     layout = dict(
         autosize=True,
@@ -434,20 +438,20 @@ def update_charts(clickData, selected_data, clicks, value):
         title=dict(text="Distribution and ranking", x=0.5),
     )
 
-    global df_task2, df_task4, df_task4_box, last_clicks, origin, distance
     transect_fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-    task4_fig = px.bar(df_task4, x='station_id', y='isostatic_anom')
+    task4_fig = px.bar()
 
     if clicks != last_clicks:
         last_clicks = clicks
         df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom'])
         df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
         df_task4_box = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
-        origin = []
+        origin = Point(0, 0)
         distance = 0
         clickData = None
         selected_data = None
+        data['last_clicks'] = clicks
 
     elif clickData:
         station_id = clickData['points'][0]['customdata'][1]
@@ -456,14 +460,17 @@ def update_charts(clickData, selected_data, clicks, value):
         # print(str(station.station_id) + ": " + str(station.geometry))
         if not origin:
             origin = station.geometry
-        distance += origin.distance(station.geometry)
-        df_task2 = df_task2.append({'distance': distance, 'elevation': clickData['points'][0]['customdata'][2],
-                                    'isostatic_anom': clickData['points'][0]['customdata'][0]}, ignore_index=True)
-        df_task2 = df_task2.sort_values('distance').reset_index(drop=True)
-
-        origin = station.geometry
 
         if task4_type == 'click':
+            # update task2
+            distance += origin.distance(station.geometry)
+            df_task2 = df_task2.append({'distance': distance, 'elevation': clickData['points'][0]['customdata'][2],
+                                        'isostatic_anom': clickData['points'][0]['customdata'][0]}, ignore_index=True)
+            df_task2 = df_task2.sort_values('distance').reset_index(drop=True)
+
+            origin = station.geometry
+
+            # update task4
             station_id = str(clickData['points'][0]['customdata'][1])
             iso = clickData['points'][0]['customdata'][0]
 
@@ -527,19 +534,37 @@ def update_charts(clickData, selected_data, clicks, value):
     task4_fig.update(layout=layout)
     task4_fig.update(layout=bar_layout)
 
-    return transect_fig, task4_fig
+    # update the stored data
+    data['origin_x'] = origin.x
+    data['origin_y'] = origin.y
+    data['distance'] = distance
+    data['task2_df'] = df_task2.to_json(date_format='iso', orient='split')
+    data['task4_df'] = df_task4.to_json(date_format='iso', orient='split')
+    data['task4_box_df'] = df_task4_box.to_json(date_format='iso', orient='split')
+
+    return transect_fig, task4_fig, data
 
 
 @app.callback(
-    Output("modal-centered", "is_open"),
-    [Input("layer-helper", "n_clicks"), Input("close-centered", "n_clicks")],
-    [State("modal-centered", "is_open")],
+    Output("layer-helper-modal", "is_open"),
+    [Input("layer-helper", "n_clicks"), Input("layer-helper-close", "n_clicks")],
+    [State("layer-helper-modal", "is_open")],
 )
-def toggle_modal(n1, n2, is_open):
+def toggle_layer_helper_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
 
+
+@app.callback(
+    Output("task4-helper-modal", "is_open"),
+    [Input("task4-helper", "n_clicks"), Input("task4-helper-close", "n_clicks")],
+    [State("task4-helper-modal", "is_open")],
+)
+def toggle_task4_helper_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
