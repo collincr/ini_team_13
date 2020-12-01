@@ -40,8 +40,10 @@ stations['station_id'] = stations['station_id'].str.strip()
 
 empty_task2_df = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom', 'Free_air_anom', 'Bouguer_anom_267', 'obs_grav'])
 empty_task4_df = pd.DataFrame(columns=['isostatic_anom', 'station_id', 'Free_air_anom', 'Bouguer_anom_267', 'obs_grav'])
-gdf = gpd.read_file("data/ca_nvda_grav.geojson")
-gdf = gdf.to_crs('EPSG:2163')
+# gdf = gpd.read_file("data/ca_nvda_grav.geojson")
+# gdf = gdf.to_crs('EPSG:2163')
+## Experimental feature for 2x times reading optimization
+gdf = gpd.read_feather('data/ca_nvda_grav_2163.feather')
 
 mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2xkb21kIn0.EfyVLEhdszs_Yzdz86hXSA"
 
