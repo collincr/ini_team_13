@@ -50,13 +50,21 @@ def get_image():
     return im
 
 ### get image directly from file
-def get_ca_raster_image_from_file():
-    im = Image.open(r"data/california_raster_final.png")
+def get_ca_isostatic_raster_image_from_file():
+    im = Image.open(r"data/california_raster_isostatic_anom.png")
+    return im
+
+def get_nv_isostatic_raster_image_from_file():
+    im = Image.open(r"data/nevada_raster_isostatic_anom.png")
     return im
 
 ### get image directly from file
-def get_nv_raster_image_from_file():
-    im = Image.open(r"data/nevada_raster_final.png")
+def get_ca_bouguer_raster_image_from_file():
+    im = Image.open(r"data/california_raster_bouguer_anom.png")
+    return im
+
+def get_nv_bouguer_raster_image_from_file():
+    im = Image.open(r"data/nevada_raster_bouguer_anom.png")
     return im
 
 ### get the boundary of the image

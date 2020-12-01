@@ -17,8 +17,8 @@ from shapely.geometry import Point
 import dash_bootstrap_components as dbc
 import json
 
-from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_raster_image_from_file, \
-    get_nv_raster_image_from_file
+from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_isostatic_raster_image_from_file, \
+    get_nv_isostatic_raster_image_from_file, get_ca_bouguer_raster_image_from_file, get_nv_bouguer_raster_image_from_file
 import texts
 
 external_stylesheets = [
@@ -41,11 +41,17 @@ stations['station_id'] = stations['station_id'].str.strip()
 gdf = gpd.read_file("data/ca_nvda_grav.geojson")
 gdf = gdf.to_crs('EPSG:2163')
 
-with open('data/cafault.geojson') as json_file:
-    cafault_json = json.load(json_file)
+with open('data/hazfaults2014_proj_normal.geojson') as json_file:
+    qfault_normal_json = json.load(json_file)
 
-with open('data/nvfault.geojson') as json_file:
-    nvfault_json = json.load(json_file)
+with open('data/hazfaults2014_proj_thrust.geojson') as json_file:
+    qfault_thrust_json = json.load(json_file)
+
+with open('data/hazfaults2014_proj_strikeslip.geojson') as json_file:
+    qfault_strikeslip_json = json.load(json_file)
+
+with open('data/hazfaults2014_proj_unassigned.geojson') as json_file:
+    qfault_unassigned_json = json.load(json_file)
 
 mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2xkb21kIn0.EfyVLEhdszs_Yzdz86hXSA"
 
@@ -62,36 +68,67 @@ county_border_layer = {
 
 ca_raster_layer = {
     "sourcetype": "image",
-    "source": get_ca_raster_image_from_file(),
+    "source": get_ca_isostatic_raster_image_from_file(),
     "coordinates": get_ca_boundary(),
     'opacity': 0.3
 }
 
 nv_raster_layer = {
     "sourcetype": "image",
-    "source": get_nv_raster_image_from_file(),
+    "source": get_nv_isostatic_raster_image_from_file(),
     "coordinates": get_nv_boundary(),
     'opacity': 0.3
 }
 
-ca_fault_layer = {
+ca_bouguer_raster_layer = {
+    "sourcetype": "image",
+    "source": get_ca_bouguer_raster_image_from_file(),
+    "coordinates": get_ca_boundary(),
+    'opacity': 0.3
+}
+
+nv_bouguer_raster_layer = {
+    "sourcetype": "image",
+    "source": get_nv_bouguer_raster_image_from_file(),
+    "coordinates": get_nv_boundary(),
+    'opacity': 0.3
+}
+
+qfault_normal_layer = {
     "sourcetype": "geojson",
     "sourcelayer": "fault",
     "type": "line",
-    "color": "grey",
+    "color": "blue",
     "opacity": 0.8,
-    "source": cafault_json,
+    "source": qfault_normal_json,
 }
 
-nv_fault_layer = {
+qfault_thrust_layer = {
     "sourcetype": "geojson",
     "sourcelayer": "fault",
     "type": "line",
-    "color": "grey",
+    "color": "yellow",
     "opacity": 0.8,
-    "source": nvfault_json,
+    "source": qfault_thrust_json,
 }
 
+qfault_strikeslip_layer = {
+    "sourcetype": "geojson",
+    "sourcelayer": "fault",
+    "type": "line",
+    "color": "red",
+    "opacity": 0.8,
+    "source": qfault_strikeslip_json,
+}
+
+qfault_unassigned_layer = {
+    "sourcetype": "geojson",
+    "sourcelayer": "fault",
+    "type": "line",
+    "color": "green",
+    "opacity": 0.8,
+    "source": qfault_unassigned_json,
+}
 
 # title
 def title():
@@ -164,6 +201,7 @@ def layer_selection_radio_group():
                 {'label': 'Scatter Plot', 'value': 'scatterplot'},
                 {'label': 'Spatial Density Heatmap', 'value': 'heatmap'},
                 {'label': 'Interpolated Plot', 'value': 'interpolated'},
+                {'label': 'Interpolated Plot (Bouguer)', 'value': 'interpolated_bouguer'},
                 {'label': 'Fault Dataset', 'value': 'fault'},
             ],
             labelStyle={"display": "inline-block"},
@@ -284,7 +322,7 @@ def create_scatter_plot(withFault=False):
         name="stations",
     ))
     if (withFault):
-        fig.update_layout(mapbox_layers=[county_border_layer, ca_fault_layer, nv_fault_layer])
+        fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer])
     else:
         fig.update_layout(mapbox_layers=[county_border_layer])
     return fig
@@ -314,7 +352,7 @@ def create_density_heatmap(withFault=False):
         name="stations",
     ))
     if (withFault):
-        fig.update_layout(mapbox_layers=[county_border_layer, ca_fault_layer, nv_fault_layer])
+        fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer])
     else:
         fig.update_layout(mapbox_layers=[county_border_layer])
     return fig
@@ -335,9 +373,29 @@ def create_image_overlay(withFault=False):
         hoverinfo='skip',
     ))
     if (withFault):
-        fig.update_layout(mapbox_layers=[county_border_layer, ca_fault_layer, nv_fault_layer, ca_raster_layer, nv_raster_layer])
+        fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer, ca_raster_layer, nv_raster_layer])
     else:
         fig.update_layout(mapbox_layers=[county_border_layer, ca_raster_layer, nv_raster_layer])
+    return fig
+
+# create the image overlay layer for bouguer anomoly
+def create_image_overlay_bouguer(withFault=False):
+    fig = go.Figure(go.Densitymapbox(
+        lat=stations[:1].latitude,
+        lon=stations[:1].longitude,
+        z=stations.Bouguer_anom_267,
+        colorscale='spectral_r',
+        colorbar=dict(
+            title=dict(text="Bouguer<br>Anomaly<br>(mGal)", side="bottom"),
+            outlinewidth=0,
+        ),
+        opacity=0,
+        hoverinfo='skip',
+    ))
+    if (withFault):
+        fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer, ca_bouguer_raster_layer, nv_bouguer_raster_layer])
+    else:
+        fig.update_layout(mapbox_layers=[county_border_layer, ca_bouguer_raster_layer, nv_bouguer_raster_layer])
     return fig
 
 def create_fault_dataset():
@@ -348,7 +406,7 @@ def create_fault_dataset():
         showscale=False,
         hoverinfo='skip',
     ))
-    fig.update_layout(mapbox_layers=[county_border_layer, ca_fault_layer, nv_fault_layer])
+    fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer])
     return fig
 
 
@@ -377,6 +435,8 @@ def update_figure(value, fault_checklist):
         fig = create_density_heatmap(with_fault)
     elif value =='interpolated':
         fig = create_image_overlay(with_fault)
+    elif value =='interpolated_bouguer':
+        fig = create_image_overlay_bouguer(with_fault)
     else:
         fig = create_fault_dataset()
 
