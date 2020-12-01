@@ -549,12 +549,12 @@ def update_charts(clickData, selected_data, clicks, task4_type, anomaly_type, da
 
     # Add traces
     transect_fig.add_trace(
-        go.Scatter(x=df_task2.distance, y=anomaly_data, name=anomaly_name),
+        go.Scattergl(x=df_task2.distance, y=anomaly_data, name=anomaly_name),
         secondary_y=False,
     )
 
     transect_fig.add_trace(
-        go.Scatter(x=df_task2.distance, y=df_task2.elevation, name="Elevation"),
+        go.Scattergl(x=df_task2.distance, y=df_task2.elevation, name="Elevation"),
         secondary_y=True,
     )
 
