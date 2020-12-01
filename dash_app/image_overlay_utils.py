@@ -78,11 +78,11 @@ def get_nv_freeair_raster_image_from_file():
 
 ### get image directly from file
 def get_ca_observed_raster_image_from_file():
-    im = Image.open(r"data/california_raster_obs_grav_anom.png")
+    im = Image.open(r"data/california_raster_obs_grav.png")
     return im
 
 def get_nv_observed_raster_image_from_file():
-    im = Image.open(r"data/nevada_raster_obs_grav_anom.png")
+    im = Image.open(r"data/nevada_raster_obs_grav.png")
     return im
 
 ### get the boundary of the image

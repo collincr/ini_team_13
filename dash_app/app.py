@@ -15,12 +15,11 @@ import pandas as pd
 from dash.dependencies import Input, Output, State
 from shapely.geometry import Point
 import dash_bootstrap_components as dbc
-import json
 
-from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_isostatic_raster_image_from_file, \
-    get_nv_isostatic_raster_image_from_file, get_ca_bouguer_raster_image_from_file, get_nv_bouguer_raster_image_from_file, \
-    get_ca_freeair_raster_image_from_file, get_nv_freeair_raster_image_from_file, get_ca_observed_raster_image_from_file, get_nv_observed_raster_image_from_file
 import texts
+from layers import county_border_layer, ca_raster_layer, nv_raster_layer, ca_bouguer_raster_layer, nv_bouguer_raster_layer, \
+    ca_freeair_raster_layer, nv_freeair_raster_layer, ca_observed_raster_layer, nv_observed_raster_layer, qfault_normal_layer, \
+    qfault_thrust_layer, qfault_strikeslip_layer, qfault_unassigned_layer
 
 external_stylesheets = [
     'https://codepen.io/chriddyp/pen/bWLwgP.css',
@@ -44,122 +43,7 @@ empty_task4_df = pd.DataFrame(columns=['isostatic_anom', 'station_id', 'Free_air
 gdf = gpd.read_file("data/ca_nvda_grav.geojson")
 gdf = gdf.to_crs('EPSG:2163')
 
-with open('data/hazfaults2014_proj_normal.geojson') as json_file:
-    qfault_normal_json = json.load(json_file)
-
-with open('data/hazfaults2014_proj_thrust.geojson') as json_file:
-    qfault_thrust_json = json.load(json_file)
-
-with open('data/hazfaults2014_proj_strikeslip.geojson') as json_file:
-    qfault_strikeslip_json = json.load(json_file)
-
-with open('data/hazfaults2014_proj_unassigned.geojson') as json_file:
-    qfault_unassigned_json = json.load(json_file)
-
 mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2xkb21kIn0.EfyVLEhdszs_Yzdz86hXSA"
-
-county_border_layer = {
-    "sourcetype": "vector",
-    "sourcelayer": "County",
-    "type": "line",
-    "opacity": 0.1,
-    "color": "grey",
-    "source": [
-        "https://gis-server.data.census.gov/arcgis/rest/services/Hosted/VT_2019_050_00_PY_D1/VectorTileServer/tile/{z}/{y}/{x}.pbf"
-    ]
-}
-
-ca_raster_layer = {
-    "sourcetype": "image",
-    "source": get_ca_isostatic_raster_image_from_file(),
-    "coordinates": get_ca_boundary(),
-    'opacity': 0.3
-}
-
-nv_raster_layer = {
-    "sourcetype": "image",
-    "source": get_nv_isostatic_raster_image_from_file(),
-    "coordinates": get_nv_boundary(),
-    'opacity': 0.3
-}
-
-ca_bouguer_raster_layer = {
-    "sourcetype": "image",
-    "source": get_ca_bouguer_raster_image_from_file(),
-    "coordinates": get_ca_boundary(),
-    'opacity': 0.3
-}
-
-nv_bouguer_raster_layer = {
-    "sourcetype": "image",
-    "source": get_nv_bouguer_raster_image_from_file(),
-    "coordinates": get_nv_boundary(),
-    'opacity': 0.3
-}
-
-ca_freeair_raster_layer = {
-    "sourcetype": "image",
-    "source": get_ca_freeair_raster_image_from_file(),
-    "coordinates": get_ca_boundary(),
-    'opacity': 0.3
-}
-
-nv_freeair_raster_layer = {
-    "sourcetype": "image",
-    "source": get_nv_freeair_raster_image_from_file(),
-    "coordinates": get_nv_boundary(),
-    'opacity': 0.3
-}
-
-ca_observed_raster_layer = {
-    "sourcetype": "image",
-    "source": get_ca_observed_raster_image_from_file(),
-    "coordinates": get_ca_boundary(),
-    'opacity': 0.3
-}
-
-nv_observed_raster_layer = {
-    "sourcetype": "image",
-    "source": get_nv_observed_raster_image_from_file(),
-    "coordinates": get_nv_boundary(),
-    'opacity': 0.3
-}
-
-qfault_normal_layer = {
-    "sourcetype": "geojson",
-    "sourcelayer": "fault",
-    "type": "line",
-    "color": "blue",
-    "opacity": 0.8,
-    "source": qfault_normal_json,
-}
-
-qfault_thrust_layer = {
-    "sourcetype": "geojson",
-    "sourcelayer": "fault",
-    "type": "line",
-    "color": "yellow",
-    "opacity": 0.8,
-    "source": qfault_thrust_json,
-}
-
-qfault_strikeslip_layer = {
-    "sourcetype": "geojson",
-    "sourcelayer": "fault",
-    "type": "line",
-    "color": "red",
-    "opacity": 0.8,
-    "source": qfault_strikeslip_json,
-}
-
-qfault_unassigned_layer = {
-    "sourcetype": "geojson",
-    "sourcelayer": "fault",
-    "type": "line",
-    "color": "green",
-    "opacity": 0.8,
-    "source": qfault_unassigned_json,
-}
 
 # title
 def title():
@@ -235,7 +119,6 @@ def layer_selection_radio_group():
                 {'label': 'Scatter Plot', 'value': 'scatterplot'},
                 {'label': 'Interpolated Plot', 'value': 'interpolated'},
                 {'label': 'Spatial Density Heatmap', 'value': 'heatmap'},
-                {'label': 'Quaternary Faults', 'value': 'fault'},
             ],
             labelStyle={"display": "inline-block"},
             value='scatterplot',
@@ -400,7 +283,7 @@ def create_scatter_plot(withFault=False, anomaly_type='isostatic'):
                       "Bouguer Anomaly: %{customdata[4]} mGal<br>"
                       "Observed Anomaly: %{customdata[5]} mGal<br>"
                       "Elevation: %{customdata[2]} ft<extra></extra>",
-        name="stations",
+        name="Stations",
     ))
     if (withFault):
         add_fault_trace(fig)
@@ -434,7 +317,7 @@ def create_density_heatmap(withFault=False):
                       "Bouguer Anomaly: %{customdata[4]} mGal<br>"
                       "Observed Anomaly: %{customdata[5]} mGal<br>"
                       "Elevation: %{customdata[2]} ft<extra></extra>",
-        name="stations",
+        name="Stations",
     ))
     if (withFault):
         add_fault_trace(fig)
@@ -490,18 +373,6 @@ def create_image_overlay(withFault=False, anomaly_type='isostatic'):
         fig.update_layout(mapbox_layers=mapbox_layers_list)
     return fig
 
-def create_fault_dataset():
-    fig = go.Figure(go.Densitymapbox(
-        lat=stations[:1].latitude,
-        lon=stations[:1].longitude,
-        opacity=0,
-        showscale=False,
-        hoverinfo='skip',
-    ))
-    add_fault_trace(fig)
-    fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer])
-    return fig
-
 # create the hidden traces to show legend for fault dataset
 def add_fault_trace(fig):
     fig.add_trace(go.Scattermapbox(mode = "lines", lon = [0], lat = [0], marker={'color': 'blue'}, name="Normal"))
@@ -544,8 +415,6 @@ def update_figure(value, fault_checklist, anomaly_type, mapbox_style):
         fig = create_density_heatmap(with_fault)
     elif value =='interpolated':
         fig = create_image_overlay(with_fault, anomaly_type)
-    else:
-        fig = create_fault_dataset()
 
     fig.update_layout(
         hovermode='closest',
