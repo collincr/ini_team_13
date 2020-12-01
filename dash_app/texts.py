@@ -24,9 +24,9 @@ and you can see how the gravity and elevation changes in terms of the distance f
 """
 
 task4_intro_text = """
-This bar chart shows how the gravity of one station compares to other stations that you've selected.
+This bar chart shows how the gravity of one station compares to other selected stations.
 
-You can click on any point on the scatter map, or use the box select tool in the menu bar to select data to be visualized.
+You can click on the scatter map, or use the box select tool in the menu bar to select data.
 To learn more about how to use this visualization tool, click the question mark icon above.
 """
 
