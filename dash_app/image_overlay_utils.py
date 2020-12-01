@@ -67,6 +67,24 @@ def get_nv_bouguer_raster_image_from_file():
     im = Image.open(r"data/nevada_raster_bouguer_anom.png")
     return im
 
+### get image directly from file
+def get_ca_freeair_raster_image_from_file():
+    im = Image.open(r"data/california_raster_free_air_anom.png")
+    return im
+
+def get_nv_freeair_raster_image_from_file():
+    im = Image.open(r"data/nevada_raster_free_air_anom.png")
+    return im
+
+### get image directly from file
+def get_ca_observed_raster_image_from_file():
+    im = Image.open(r"data/california_raster_obs_grav_anom.png")
+    return im
+
+def get_nv_observed_raster_image_from_file():
+    im = Image.open(r"data/nevada_raster_obs_grav_anom.png")
+    return im
+
 ### get the boundary of the image
 def get_boundary():
     df2 = pd.read_csv('data/ca_nvda_grav.csv')

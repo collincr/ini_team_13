@@ -18,7 +18,8 @@ import dash_bootstrap_components as dbc
 import json
 
 from image_overlay_utils import get_ca_boundary, get_nv_boundary, get_ca_isostatic_raster_image_from_file, \
-    get_nv_isostatic_raster_image_from_file, get_ca_bouguer_raster_image_from_file, get_nv_bouguer_raster_image_from_file
+    get_nv_isostatic_raster_image_from_file, get_ca_bouguer_raster_image_from_file, get_nv_bouguer_raster_image_from_file, \
+    get_ca_freeair_raster_image_from_file, get_nv_freeair_raster_image_from_file, get_ca_observed_raster_image_from_file, get_nv_observed_raster_image_from_file
 import texts
 
 external_stylesheets = [
@@ -92,6 +93,34 @@ ca_bouguer_raster_layer = {
 nv_bouguer_raster_layer = {
     "sourcetype": "image",
     "source": get_nv_bouguer_raster_image_from_file(),
+    "coordinates": get_nv_boundary(),
+    'opacity': 0.3
+}
+
+ca_freeair_raster_layer = {
+    "sourcetype": "image",
+    "source": get_ca_freeair_raster_image_from_file(),
+    "coordinates": get_ca_boundary(),
+    'opacity': 0.3
+}
+
+nv_freeair_raster_layer = {
+    "sourcetype": "image",
+    "source": get_nv_freeair_raster_image_from_file(),
+    "coordinates": get_nv_boundary(),
+    'opacity': 0.3
+}
+
+ca_observed_raster_layer = {
+    "sourcetype": "image",
+    "source": get_ca_observed_raster_image_from_file(),
+    "coordinates": get_ca_boundary(),
+    'opacity': 0.3
+}
+
+nv_observed_raster_layer = {
+    "sourcetype": "image",
+    "source": get_nv_observed_raster_image_from_file(),
     "coordinates": get_nv_boundary(),
     'opacity': 0.3
 }
@@ -206,7 +235,7 @@ def layer_selection_radio_group():
                 {'label': 'Scatter Plot', 'value': 'scatterplot'},
                 {'label': 'Interpolated Plot', 'value': 'interpolated'},
                 {'label': 'Spatial Density Heatmap', 'value': 'heatmap'},
-                {'label': 'Fault Dataset', 'value': 'fault'},
+                {'label': 'Quaternary Faults', 'value': 'fault'},
             ],
             labelStyle={"display": "inline-block"},
             value='scatterplot',
@@ -222,7 +251,7 @@ def fault_selection_radio_group():
         dcc.Checklist(
             id="display-fault",
             options=[
-                {'label': 'Fault dataset', 'value': 'fault'},
+                {'label': 'Quaternary Faults', 'value': 'fault'},
             ],
             value=[],
             labelStyle={"display": "inline-block"},
@@ -374,6 +403,7 @@ def create_scatter_plot(withFault=False, anomaly_type='isostatic'):
         name="stations",
     ))
     if (withFault):
+        add_fault_trace(fig)
         fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer])
     else:
         fig.update_layout(mapbox_layers=[county_border_layer])
@@ -407,6 +437,7 @@ def create_density_heatmap(withFault=False):
         name="stations",
     ))
     if (withFault):
+        add_fault_trace(fig)
         fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer])
     else:
         fig.update_layout(mapbox_layers=[county_border_layer])
@@ -414,43 +445,49 @@ def create_density_heatmap(withFault=False):
 
 
 # create the image overlay layer
-def create_image_overlay(withFault=False):
+def create_image_overlay(withFault=False, anomaly_type='isostatic'):
+    mapbox_layers_list = [county_border_layer]
+    marker_color = stations.isostatic_anom
+    colorbar_title = "Isostatic<br>Anomaly"
+    if anomaly_type == 'isostatic':
+        mapbox_layers_list.append(ca_raster_layer)
+        mapbox_layers_list.append(nv_raster_layer)
+    elif anomaly_type == 'bouguer':
+        marker_color = stations.Bouguer_anom_267
+        colorbar_title = "Bouguer<br>Anomaly"
+        mapbox_layers_list.append(ca_bouguer_raster_layer)
+        mapbox_layers_list.append(nv_bouguer_raster_layer)
+    elif anomaly_type == 'freeair':
+        marker_color = stations.Free_air_anom
+        colorbar_title = "Free Air<br>Anomaly"
+        mapbox_layers_list.append(ca_freeair_raster_layer)
+        mapbox_layers_list.append(nv_freeair_raster_layer)
+    elif anomaly_type == 'observed':
+        marker_color = stations.obs_grav
+        colorbar_title = "Observed<br>Anomaly"
+        mapbox_layers_list.append(ca_observed_raster_layer)
+        mapbox_layers_list.append(nv_observed_raster_layer)
     fig = go.Figure(go.Densitymapbox(
         lat=stations[:1].latitude,
         lon=stations[:1].longitude,
-        z=stations.isostatic_anom,
+        z=marker_color,
         colorscale='spectral_r',
         colorbar=dict(
-            title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom"),
+            title=dict(text=colorbar_title + "<br>(mGal)", side="bottom"),
             outlinewidth=0,
         ),
         opacity=0,
         hoverinfo='skip',
     ))
     if (withFault):
-        fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer, ca_raster_layer, nv_raster_layer])
+        mapbox_layers_list.append(qfault_normal_layer)
+        mapbox_layers_list.append(qfault_strikeslip_layer)
+        mapbox_layers_list.append(qfault_thrust_layer)
+        mapbox_layers_list.append(qfault_unassigned_layer)
+        add_fault_trace(fig)
+        fig.update_layout(mapbox_layers=mapbox_layers_list)
     else:
-        fig.update_layout(mapbox_layers=[county_border_layer, ca_raster_layer, nv_raster_layer])
-    return fig
-
-# create the image overlay layer for bouguer anomoly
-def create_image_overlay_bouguer(withFault=False):
-    fig = go.Figure(go.Densitymapbox(
-        lat=stations[:1].latitude,
-        lon=stations[:1].longitude,
-        z=stations.Bouguer_anom_267,
-        colorscale='spectral_r',
-        colorbar=dict(
-            title=dict(text="Bouguer<br>Anomaly<br>(mGal)", side="bottom"),
-            outlinewidth=0,
-        ),
-        opacity=0,
-        hoverinfo='skip',
-    ))
-    if (withFault):
-        fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer, ca_bouguer_raster_layer, nv_bouguer_raster_layer])
-    else:
-        fig.update_layout(mapbox_layers=[county_border_layer, ca_bouguer_raster_layer, nv_bouguer_raster_layer])
+        fig.update_layout(mapbox_layers=mapbox_layers_list)
     return fig
 
 def create_fault_dataset():
@@ -461,9 +498,24 @@ def create_fault_dataset():
         showscale=False,
         hoverinfo='skip',
     ))
+    add_fault_trace(fig)
     fig.update_layout(mapbox_layers=[county_border_layer, qfault_normal_layer, qfault_strikeslip_layer, qfault_thrust_layer, qfault_unassigned_layer])
     return fig
 
+# create the hidden traces to show legend for fault dataset
+def add_fault_trace(fig):
+    fig.add_trace(go.Scattermapbox(mode = "lines", lon = [0], lat = [0], marker={'color': 'blue'}, name="Normal"))
+    fig.add_trace(go.Scattermapbox(mode = "lines", lon = [0], lat = [0], marker={'color': 'red'}, name="Strike Slip"))
+    fig.add_trace(go.Scattermapbox(mode = "lines", lon = [0], lat = [0], marker={'color': 'yellow'}, name="Thrust"))
+    fig.add_trace(go.Scattermapbox(mode = "lines", lon = [0], lat = [0], marker={'color': 'green'}, name="Unassigned"))
+    fig.update_layout(
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+        )
+    )
 
 # main layout of the application
 app.layout = html.Div(children=[
@@ -491,9 +543,7 @@ def update_figure(value, fault_checklist, anomaly_type, mapbox_style):
     elif value == 'heatmap':
         fig = create_density_heatmap(with_fault)
     elif value =='interpolated':
-        fig = create_image_overlay(with_fault)
-    elif value =='interpolated_bouguer':
-        fig = create_image_overlay_bouguer(with_fault)
+        fig = create_image_overlay(with_fault, anomaly_type)
     else:
         fig = create_fault_dataset()
 
