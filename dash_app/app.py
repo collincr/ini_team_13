@@ -459,19 +459,15 @@ def update_charts(clickData, selected_data, clicks, task4_type, anomaly_type, da
     df_task4 = pd.read_json(data['task4_df'], orient='split')
     df_task4_box = pd.read_json(data['task4_box_df'], orient='split')
 
-    anomaly_data = df_task2.isostatic_anom
     anomaly_name = 'Isostatic Anomaly'
     anomaly_column_name = 'isostatic_anom'
     if anomaly_type == 'bouguer':
-        anomaly_data = df_task2.Bouguer_anom_267
         anomaly_name = 'Bouguer Anomaly'
         anomaly_column_name = 'Bouguer_anom_267'
     elif anomaly_type == 'freeair':
-        anomaly_data = df_task2.Free_air_anom
         anomaly_name = 'Free Air Anomaly'
         anomaly_column_name = 'Free_air_anom'
     elif anomaly_type == 'observed':
-        anomaly_data = df_task2.obs_grav
         anomaly_name = 'Observed Anomaly'
         anomaly_column_name = 'obs_grav'
 
@@ -541,6 +537,14 @@ def update_charts(clickData, selected_data, clicks, task4_type, anomaly_type, da
 
             task4_fig = px.bar(df_task4, x='station_id', y=anomaly_column_name, color="station_id", color_discrete_sequence=colors)
 
+    anomaly_data = df_task2.isostatic_anom
+    if anomaly_type == 'bouguer':
+        anomaly_data = df_task2.Bouguer_anom_267
+    elif anomaly_type == 'freeair':
+        anomaly_data = df_task2.Free_air_anom
+    elif anomaly_type == 'observed':
+        anomaly_data = df_task2.obs_grav
+
     # Add traces
     transect_fig.add_trace(
         go.Scatter(x=df_task2.distance, y=anomaly_data, name=anomaly_name),
@@ -569,7 +573,7 @@ def update_charts(clickData, selected_data, clicks, task4_type, anomaly_type, da
             for point in selected_data['points']:
                 df_task4_box = df_task4_box.append(
                     {'isostatic_anom': point['customdata'][0], 'station_id': point['customdata'][1], 
-                    'Free_air_anom': point['customdata'][3], 'Bouguer_anom_267': point['customdata'][4], 'obs_grav': custom_data[5]}, ignore_index=True)
+                    'Free_air_anom': point['customdata'][3], 'Bouguer_anom_267': point['customdata'][4], 'obs_grav': point['customdata'][5]}, ignore_index=True)
 
             # Update bar chart
             df_task4_box = df_task4_box.drop_duplicates()
