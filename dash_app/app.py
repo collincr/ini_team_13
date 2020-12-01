@@ -40,10 +40,6 @@ stations['station_id'] = stations['station_id'].str.strip()
 
 empty_task2_df = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom', 'Free_air_anom', 'Bouguer_anom_267', 'obs_grav'])
 empty_task4_df = pd.DataFrame(columns=['isostatic_anom', 'station_id', 'Free_air_anom', 'Bouguer_anom_267', 'obs_grav'])
-# gdf = gpd.read_file("data/ca_nvda_grav.geojson")
-# gdf = gdf.to_crs('EPSG:2163')
-## Experimental feature for 2x times reading optimization
-gdf = gpd.read_feather('data/ca_nvda_grav_2163.feather')
 
 mapbox_access_token = "pk.eyJ1IjoieXVxaW5ndyIsImEiOiJja2c1eDkyM2YweXE0MnBubmI5Y2xkb21kIn0.EfyVLEhdszs_Yzdz86hXSA"
 
@@ -506,23 +502,22 @@ def update_charts(clickData, selected_data, clicks, task4_type, anomaly_type, da
         data['last_clicks'] = clicks
 
     elif clickData:
-        station_id = clickData['points'][0]['customdata'][1]
-        index = stations.index[stations.station_id == station_id].tolist()[0]
-        station = gdf.loc[index]
-        # print(str(station.station_id) + ": " + str(station.geometry))
+        lon = clickData['points'][0]['lon']
+        lat = clickData['points'][0]['lat']
+        x, y = degrees2meters(lon, lat)
         if origin == Point(0, 0):
-            origin = station.geometry
+            origin = Point(x, y)
 
         if task4_type == 'click':
             # update task2
-            distance += origin.distance(station.geometry)
+            distance += origin.distance(Point(x, y))
             custom_data = clickData['points'][0]['customdata']
             df_task2 = df_task2.append({'distance': distance, 'elevation': custom_data[2],
                                         'isostatic_anom': custom_data[0], 'Free_air_anom': custom_data[3],
                                         'Bouguer_anom_267': custom_data[4], 'obs_grav': custom_data[5]}, ignore_index=True)
             df_task2 = df_task2.sort_values('distance').reset_index(drop=True)
 
-            origin = station.geometry
+            origin = Point(x, y)
 
             # update task4
             station_id = str(clickData['points'][0]['customdata'][1])
@@ -628,6 +623,14 @@ def toggle_task4_helper_modal(n1, n2, is_open):
     if n1 or n2:
         return not is_open
     return is_open
+
+
+def degrees2meters(lon, lat):
+    x = lon * 20037508.34 / 180
+    y = math.log(math.tan((90 + lat) * math.pi / 360)) / (math.pi / 180)
+    y = y * 20037508.34 / 180
+    return x, y
+
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', debug=True)
