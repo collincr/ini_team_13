@@ -38,6 +38,8 @@ server = app.server
 stations = pd.read_csv("data/ca_nvda_grav.csv").sort_values('isostatic_anom', ascending=False)
 stations['station_id'] = stations['station_id'].str.strip()
 
+empty_task2_df = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom', 'Free_air_anom', 'Bouguer_anom_267', 'obs_grav'])
+empty_task4_df = pd.DataFrame(columns=['isostatic_anom', 'station_id', 'Free_air_anom', 'Bouguer_anom_267', 'obs_grav'])
 gdf = gpd.read_file("data/ca_nvda_grav.geojson")
 gdf = gdf.to_crs('EPSG:2163')
 
@@ -144,6 +146,8 @@ def main_row():
         html.Div([
             layer_selection_intro(),
             layer_selection_radio_group(),
+            mapbox_style_selection_radio_group(),
+            anomaly_selection_radio_group(),
             fault_selection_radio_group(),
             html.Button('Clear selected data', id='button-transect', style={"display": "block"}, n_clicks=0),
             main_map()
@@ -171,12 +175,12 @@ def layer_selection_intro():
         html.Div(
             [
                 html.Div(children=[
-                    html.P('Select visualization type', className="title-with-helper"),
+                    html.P('Main Visualization Map', className="title-with-helper"),
                     html.A(className="far fa-question-circle helper-icon", id="layer-helper"),
                 ], className="title"),
                 dbc.Modal(
                     [
-                        dbc.ModalHeader("Visualization Type Instructions"),
+                        dbc.ModalHeader("Introduction to the Visualization Types"),
                         dbc.ModalBody(dcc.Markdown(texts.help_text)),
                         dbc.ModalFooter(
                             dbc.Button("Close", id="layer-helper-close", className="ml-auto")
@@ -195,17 +199,18 @@ def layer_selection_intro():
 # layer selection radio buttons
 def layer_selection_radio_group():
     return html.Div(children=[
+        html.Span("Select visualization type: ", className="label"),
         dcc.RadioItems(
             id="map-type",
             options=[
                 {'label': 'Scatter Plot', 'value': 'scatterplot'},
-                {'label': 'Spatial Density Heatmap', 'value': 'heatmap'},
                 {'label': 'Interpolated Plot', 'value': 'interpolated'},
-                {'label': 'Interpolated Plot (Bouguer)', 'value': 'interpolated_bouguer'},
+                {'label': 'Spatial Density Heatmap', 'value': 'heatmap'},
                 {'label': 'Fault Dataset', 'value': 'fault'},
             ],
             labelStyle={"display": "inline-block"},
             value='scatterplot',
+            style={'display': 'inline'},
         ),
     ], className="radio-group")
 
@@ -213,7 +218,7 @@ def layer_selection_radio_group():
 # fault selection radio buttons
 def fault_selection_radio_group():
     return html.Div(children=[
-        html.Span("Extra layers: "),
+        html.Span("Extra layers: ", className="label"),
         dcc.Checklist(
             id="display-fault",
             options=[
@@ -223,6 +228,44 @@ def fault_selection_radio_group():
             labelStyle={"display": "inline-block"},
             style={'display': 'inline'},
         )  
+    ], className="radio-group")
+
+
+# tile selection radio buttons
+def mapbox_style_selection_radio_group():
+    return html.Div(children=[
+        html.Span('Select mapbox style: ', className="label"), 
+        dcc.RadioItems(
+            id="mapbox-style",
+            options=[
+                {"label": "Light", "value": "light"},
+                {"label": "Dark", "value": "carto-darkmatter"},
+                {"label": "Open Street Map", "value": "open-street-map"},
+                {"label": "Satellite", "value": "satellite"},
+            ],
+            labelStyle={"display": "inline-block"},
+            value='light',
+            style={'display': 'inline'},
+        ),
+    ], className="radio-group")
+
+
+# layer selection radio buttons
+def anomaly_selection_radio_group():
+    return html.Div(children=[
+        html.Span("Type of gravity anomaly: ", className="label"),
+        dcc.RadioItems(
+            id="anomaly-type",
+            options=[
+                {'label': 'Isostatic Anomaly', 'value': 'isostatic'},
+                {'label': 'Free Air Anomaly', 'value': 'freeair'},
+                {'label': 'Bouguer Anomaly', 'value': 'bouguer'},
+                {'label': 'Observed Anomaly', 'value': 'observed'}
+            ],
+            labelStyle={"display": "inline-block"},
+            style={'display': 'inline'},
+            value='isostatic',
+        ),
     ], className="radio-group")
 
 
@@ -258,12 +301,6 @@ def transect_intro():
     return html.Div(children=[
         html.Div(children=[
             html.P('Transect', className="title-with-helper"),
-            # html.A(className="far fa-question-circle helper-icon", id="transect-helper"),
-            # dbc.Tooltip(
-            #     dbc.PopoverBody(dcc.Markdown("something that you want to put in the tooltip")),
-            #     target="transect-helper",
-            #     placement="right",
-            # ),
         ], className="title"),
         html.Div(id="transect-intro-text", children=dcc.Markdown(texts.transect_intro_text)),
     ], id="transect-intro")
@@ -301,23 +338,38 @@ def task4_row():
 
 
 # create the scatter plot layer
-def create_scatter_plot(withFault=False):
+def create_scatter_plot(withFault=False, anomaly_type='isostatic'):
+    marker_color = stations.isostatic_anom
+    colorbar_title = "Isostatic<br>Anomaly"
+    if anomaly_type == 'bouguer':
+        marker_color = stations.Bouguer_anom_267
+        colorbar_title = "Bouguer<br>Anomaly"
+    elif anomaly_type == 'freeair':
+        marker_color = stations.Free_air_anom
+        colorbar_title = "Free Air<br>Anomaly"
+    elif anomaly_type == 'observed':
+        marker_color = stations.obs_grav
+        colorbar_title = "Observed<br>Anomaly"
+    
     fig = go.Figure(go.Scattermapbox(
         lat=stations.latitude,
         lon=stations.longitude,
         mode='markers',
         marker=go.scattermapbox.Marker(
             size=5,
-            color=stations.isostatic_anom,
+            color=marker_color,
             colorscale='spectral_r',
             showscale=True,
-            colorbar=dict(title=dict(text="Isostatic<br>Anomaly<br>(mGal)", side="bottom")),
+            colorbar=dict(title=dict(text=colorbar_title + "<br>(mGal)", side="bottom")),
         ),
-        customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
+        customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft, stations.Free_air_anom, stations.Bouguer_anom_267, stations.obs_grav)),
         hovertemplate="Station ID: %{customdata[1]}<br>"
                       "Latitude: %{lat}°<br>"
                       "Longitude: %{lon}°<br>"
                       "Isostatic Anomaly: %{customdata[0]} mGal<br>"
+                      "Free Air Anomaly: %{customdata[3]} mGal<br>"
+                      "Bouguer Anomaly: %{customdata[4]} mGal<br>"
+                      "Observed Anomaly: %{customdata[5]} mGal<br>"
                       "Elevation: %{customdata[2]} ft<extra></extra>",
         name="stations",
     ))
@@ -343,11 +395,14 @@ def create_density_heatmap(withFault=False):
             ticktext=['low', 'high'],
             tickvals=[1, 99],
         ),
-        customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft)),
+        customdata=list(zip(stations.isostatic_anom, stations.station_id, stations.sea_level_elev_ft, stations.Free_air_anom, stations.Bouguer_anom_267, stations.obs_grav)),
         hovertemplate="Station ID: %{customdata[1]}<br>"
                       "Latitude: %{lat}°<br>"
                       "Longitude: %{lon}°<br>"
                       "Isostatic Anomaly: %{customdata[0]} mGal<br>"
+                      "Free Air Anomaly: %{customdata[3]} mGal<br>"
+                      "Bouguer Anomaly: %{customdata[4]} mGal<br>"
+                      "Observed Anomaly: %{customdata[5]} mGal<br>"
                       "Elevation: %{customdata[2]} ft<extra></extra>",
         name="stations",
     ))
@@ -423,14 +478,16 @@ app.layout = html.Div(children=[
 # change the layer of the map
 @app.callback(
     Output('map', 'figure'),
-    [Input('map-type', 'value')],
-    [Input('display-fault', 'value')])
-def update_figure(value, fault_checklist):
+    [Input('map-type', 'value'),
+     Input('display-fault', 'value'),
+     Input('anomaly-type', 'value'),
+     Input('mapbox-style', 'value')])
+def update_figure(value, fault_checklist, anomaly_type, mapbox_style):
     with_fault = False
     if (fault_checklist == ['fault']):
         with_fault= True
     if value == 'scatterplot':
-        fig = create_scatter_plot(with_fault)
+        fig = create_scatter_plot(with_fault, anomaly_type)
     elif value == 'heatmap':
         fig = create_density_heatmap(with_fault)
     elif value =='interpolated':
@@ -443,6 +500,7 @@ def update_figure(value, fault_checklist):
     fig.update_layout(
         hovermode='closest',
         mapbox=dict(
+            style=mapbox_style,
             accesstoken=mapbox_access_token,
             bearing=0,
             center=go.layout.mapbox.Center(
@@ -466,13 +524,14 @@ def update_figure(value, fault_checklist):
     [Input('map', 'clickData'),
      Input('map', 'selectedData'),
      Input('button-transect', 'n_clicks'),
-     Input('t4_type', 'value')],
+     Input('t4_type', 'value'),
+     Input('anomaly-type', 'value')],
     State('store', 'data')
 )
-def update_charts(clickData, selected_data, clicks, task4_type, data):
+def update_charts(clickData, selected_data, clicks, task4_type, anomaly_type, data):
     # read the data from the store
-    empty_task2 = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom']).to_json(date_format='iso', orient='split')
-    empty_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id']).to_json(date_format='iso', orient='split')
+    empty_task2 = empty_task2_df.to_json(date_format='iso', orient='split')
+    empty_task4 = empty_task4_df.to_json(date_format='iso', orient='split')
     data = data or {'last_clicks': 0, 'origin_x': 0, 'origin_y': 0, 'distance': 0, 'task2_df': empty_task2, 'task4_df': empty_task4, 'task4_box_df': empty_task4}
     last_clicks = data['last_clicks']
     origin = Point(data['origin_x'], data['origin_y'])
@@ -481,11 +540,27 @@ def update_charts(clickData, selected_data, clicks, task4_type, data):
     df_task4 = pd.read_json(data['task4_df'], orient='split')
     df_task4_box = pd.read_json(data['task4_box_df'], orient='split')
 
+    anomaly_data = df_task2.isostatic_anom
+    anomaly_name = 'Isostatic Anomaly'
+    anomaly_column_name = 'isostatic_anom'
+    if anomaly_type == 'bouguer':
+        anomaly_data = df_task2.Bouguer_anom_267
+        anomaly_name = 'Bouguer Anomaly'
+        anomaly_column_name = 'Bouguer_anom_267'
+    elif anomaly_type == 'freeair':
+        anomaly_data = df_task2.Free_air_anom
+        anomaly_name = 'Free Air Anomaly'
+        anomaly_column_name = 'Free_air_anom'
+    elif anomaly_type == 'observed':
+        anomaly_data = df_task2.obs_grav
+        anomaly_name = 'Observed Anomaly'
+        anomaly_column_name = 'obs_grav'
+
     layout = dict(
         autosize=True,
         title=dict(x=0.5),
         margin=dict(l=0, r=0, b=0, t=40),
-        xaxis_title=" distance (m)",
+        xaxis_title=" Distance (m)",
         height=300
     )
 
@@ -494,8 +569,8 @@ def update_charts(clickData, selected_data, clicks, task4_type, data):
         bargap=0.1,
         xaxis_type="category",
         xaxis_title="Station ID",
-        yaxis_title="Isostatic Anomaly (mGal)",
-        title=dict(text="Distribution and ranking", x=0.5),
+        yaxis_title=anomaly_name + " (mGal)",
+        title=dict(text="Distribution and Ranking", x=0.5),
     )
 
     transect_fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -504,9 +579,9 @@ def update_charts(clickData, selected_data, clicks, task4_type, data):
 
     if clicks != last_clicks:
         last_clicks = clicks
-        df_task2 = pd.DataFrame(columns=['distance', 'elevation', 'isostatic_anom'])
-        df_task4 = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
-        df_task4_box = pd.DataFrame(columns=['isostatic_anom', 'station_id'])
+        df_task2 = empty_task2_df
+        df_task4 = empty_task4_df
+        df_task4_box = empty_task4_df
         origin = Point(0, 0)
         distance = 0
         clickData = None
@@ -518,41 +593,43 @@ def update_charts(clickData, selected_data, clicks, task4_type, data):
         index = stations.index[stations.station_id == station_id].tolist()[0]
         station = gdf.loc[index]
         # print(str(station.station_id) + ": " + str(station.geometry))
-        if not origin:
+        if origin == Point(0, 0):
             origin = station.geometry
 
         if task4_type == 'click':
             # update task2
             distance += origin.distance(station.geometry)
-            df_task2 = df_task2.append({'distance': distance, 'elevation': clickData['points'][0]['customdata'][2],
-                                        'isostatic_anom': clickData['points'][0]['customdata'][0]}, ignore_index=True)
+            custom_data = clickData['points'][0]['customdata']
+            df_task2 = df_task2.append({'distance': distance, 'elevation': custom_data[2],
+                                        'isostatic_anom': custom_data[0], 'Free_air_anom': custom_data[3],
+                                        'Bouguer_anom_267': custom_data[4], 'obs_grav': custom_data[5]}, ignore_index=True)
             df_task2 = df_task2.sort_values('distance').reset_index(drop=True)
 
             origin = station.geometry
 
             # update task4
             station_id = str(clickData['points'][0]['customdata'][1])
-            iso = clickData['points'][0]['customdata'][0]
 
             if station_id not in df_task4['station_id'].tolist():
-                df_task4 = df_task4.append({'isostatic_anom': iso, 'station_id': station_id}, ignore_index=True)
-            df_task4 = df_task4.sort_values('isostatic_anom', ascending=False)
+                df_task4 = df_task4.append({'isostatic_anom': custom_data[0], 'station_id': station_id, 'Free_air_anom': custom_data[3], 
+                'Bouguer_anom_267': custom_data[4], 'obs_grav': custom_data[5]}, ignore_index=True)
+            df_task4 = df_task4.sort_values(anomaly_column_name, ascending=False)
             df_task4 = df_task4.reset_index(drop=True)
 
             colors = [px.colors.qualitative.Plotly[0], ] * len(df_task4['station_id'])
             to_be_change_color = df_task4[df_task4['station_id'] == station_id].index.item()
             colors[to_be_change_color] = px.colors.qualitative.Plotly[1]
 
-            task4_fig = px.bar(df_task4, x='station_id', y='isostatic_anom', color="station_id", color_discrete_sequence=colors)
+            task4_fig = px.bar(df_task4, x='station_id', y=anomaly_column_name, color="station_id", color_discrete_sequence=colors)
 
     # Add traces
     transect_fig.add_trace(
-        go.Scatter(x=df_task2.distance, y=df_task2.isostatic_anom, name="isostatic_anom"),
+        go.Scatter(x=df_task2.distance, y=anomaly_data, name=anomaly_name),
         secondary_y=False,
     )
 
     transect_fig.add_trace(
-        go.Scatter(x=df_task2.distance, y=df_task2.elevation, name="elevation"),
+        go.Scatter(x=df_task2.distance, y=df_task2.elevation, name="Elevation"),
         secondary_y=True,
     )
 
@@ -563,7 +640,7 @@ def update_charts(clickData, selected_data, clicks, task4_type, data):
     transect_fig.update_xaxes(title_text="Distance (m)")
 
     # Set y-axes titles
-    transect_fig.update_yaxes(title_text="Isostatic Anomaly (mGal)", secondary_y=False)
+    transect_fig.update_yaxes(title_text=anomaly_name + " (mGal)", secondary_y=False)
     transect_fig.update_yaxes(title_text="Elevation (ft)", secondary_y=True)
 
     if task4_type == 'box':
@@ -572,13 +649,14 @@ def update_charts(clickData, selected_data, clicks, task4_type, data):
         if selected_data and selected_data['points']:
             for point in selected_data['points']:
                 df_task4_box = df_task4_box.append(
-                    {'isostatic_anom': point['customdata'][0], 'station_id': point['customdata'][1]}, ignore_index=True)
+                    {'isostatic_anom': point['customdata'][0], 'station_id': point['customdata'][1], 
+                    'Free_air_anom': point['customdata'][3], 'Bouguer_anom_267': point['customdata'][4], 'obs_grav': custom_data[5]}, ignore_index=True)
 
             # Update bar chart
             df_task4_box = df_task4_box.drop_duplicates()
-            df_task4_box = df_task4_box.sort_values('isostatic_anom', ascending=False)
+            df_task4_box = df_task4_box.sort_values(anomaly_column_name, ascending=False)
             df_task4_box = df_task4_box.reset_index(drop=True)
-            task4_fig = px.bar(x=df_task4_box.station_id, y=df_task4_box.isostatic_anom)
+            task4_fig = px.bar(df_task4_box, x='station_id', y=anomaly_column_name)
             task4_fig.update_layout(bargap=0)
 
             if clickData:
@@ -589,7 +667,7 @@ def update_charts(clickData, selected_data, clicks, task4_type, data):
                     to_be_change_color = df_task4_box[df_task4_box['station_id'] == station_id].index.item()
                     colors[to_be_change_color] = px.colors.qualitative.Plotly[1]
 
-                    task4_fig = px.bar(df_task4_box, x='station_id', y='isostatic_anom', color="station_id", color_discrete_sequence=colors)
+                    task4_fig = px.bar(df_task4_box, x='station_id', y=anomaly_column_name, color="station_id", color_discrete_sequence=colors)
 
     task4_fig.update(layout=layout)
     task4_fig.update(layout=bar_layout)

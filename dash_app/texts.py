@@ -8,8 +8,8 @@ A sequence of gravity corrections are applied to the original gravity reading an
 There are mainly four kinds of gravity anomalies: observed gravity anomaly, free air gravity anomaly, Bouguer gravity anomaly, and isostatic gravity anomaly. 
 You can learn more about gravity anomalies from [USGS's publication here](https://pubs.usgs.gov/fs/fs-0239-95/fs-0239-95.pdf).
 
-In this application, you can select different types of visualizations to explore the distribution of isostatic anomaly values and the metadata from the stations.
-In addition, you can interact with the map to view the transect or the distribution of the data according to the instructions in each section.
+In this application, you can select different types of visualizations to explore the distribution of gravity anomaly values and the metadata from the stations.
+In addition, you can interact with the map to view the transect or the ranking of the data according to the instructions in each section.
 
 Data sources: [National Centers for Environmental Information](https://www.ncei.noaa.gov/), [California’s Open Data website](https://data.ca.gov/), 
 [U.S. General Services Administration](https://www.gsa.gov/), [USGS Mineral Resources Online Spatial Data](https://mrdata.usgs.gov/)
@@ -19,14 +19,14 @@ Data sources: [National Centers for Environmental Information](https://www.ncei.
 transect_intro_text = """
 This line chart shows how gravity and elevation vary along a line. 
 
-You can click on any point on the scatter map, then it will show up as a point on the right in this chart.
+You can digitize a line on the map by clicking any point on the scatter plot, 
+and you can see how the gravity and elevation changes in terms of the distance from the starting point (the first selected point).
 """
 
 task4_intro_text = """
 This bar chart shows how the gravity of one station compares to other stations that you've selected.
 
 You can click on any point on the scatter map, or use the box select tool in the menu bar to select data to be visualized.
-
 To learn more about how to use this visualization tool, click the question mark icon above.
 """
 
@@ -43,16 +43,15 @@ All the stations are sorted in descending order. (Note: The transect graph will 
 
 **Troubleshooting**
 
-The "CLEAR SELECTED DATA" button cannot work perfectly when you're toggling between the two selection types due to framework limitations.
+The "CLEAR SELECTED DATA" button cannot work perfectly when you're toggling among the radio selection buttons due to framework limitations.
 It's better to switch to the type of tool you want to use before clicking the "CLEAR SELECTED DATA" button.
 """
 
 layer_selection_intro_text = """
-You can select any of the four types of visualizations. To learn more about these visualization types, click the question mark icon above.
+You can select any of the four types of visualizations to view on the map. To learn more about these visualization types, click the question mark icon above.
 
-If you choose "Scatter Plot", you can click on any station on the map to view the transect and the distribution of the gravity anomaly on the right side of the page.
-You can also use the box select tool in the menu bar and switch the type to "Use the box select tool" to select multiple points at a time for the "Distribution and ranking" graph.
-
+If you choose "Scatter Plot", you can interact with the map by clicking the stations or using the box select tool in the menubar 
+to visualize the transect and ranking of the selected data on the right side of the page.
 To clear the data you have selected, click the "CLEAR SELECTED DATA" button below.
 """
 
@@ -66,22 +65,20 @@ The color of each point is defined by the isostatic anomaly value according to t
 You can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
 You can also use the "box select" from the menubar at the top of the map to select a set of stations.
 
-**Density Heatmap**
-
-In the density map, each data point in the dataset is represented as a point smoothed with a given radius of influence.
-It shows the patial distribution of the stations that the datasets are collection from.
-You can tell which areas that are sampled more sparsely vs. the areas that are sampled more densely from this map.
-A potential application of this map is to inform viewers which areas should be prioritized for collecting new data.  
-
 **Interpolated Plot**
-
 
 The interpolated plot connects data points by estimating values within the gaps between stations.
 This is done by doing continuous interpolation on the original dataset.
 From this plot, you can get a rough idea about the gravity anomaly value of the unsampled areas.
 
-**Fault Dataset**
+**Spatial Density Heatmap**
 
+In the spatial density map, each data point in the dataset is represented as a point smoothed with a given radius of influence.
+It shows the spatial distribution of the stations that the datasets are collection from.
+You can tell which areas that are sampled more sparsely vs. the areas that are sampled more densely from this map.
+A potential application of this map is to inform viewers which areas should be prioritized for collecting new data.  
+
+**Fault Dataset**
 
 The fault dataset layer displays the fault data on the map without any other layers. 
 If you choose this type as the base layer, the extra layer of fault dataset will have no effects.
