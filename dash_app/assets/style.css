@@ -1,10 +1,10 @@
 body {
-    margin: 20px;
+  margin: 20px;
 }
 
 div.title {
-    font-weight: bold;
-    margin: 10px 0px;
+  font-weight: bold;
+  margin: 10px 0px;
 }
 
 p.title-with-helper {
@@ -14,41 +14,45 @@ p.title-with-helper {
 }
 
 #main-row::after {
-    content: "";
-    clear: both;
-    display: block;
+  content: "";
+  clear: both;
+  display: block;
 }
 
 .radio-group {
-    margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 #button-transect {
-    margin: 10px 0;
+  margin: 10px 0;
 }
 
 #intro-text p {
-    font-weight: normal;
-    text-align: justify;
-    margin-right: 20px;
+  font-weight: normal;
+  text-align: justify;
+  margin-right: 20px;
 }
 
 #task4-section {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .transect-graph {
-    margin: 20px 0;
+  margin: 20px 0;
 }
 
 .helper-icon {
-    margin: 0 5px;
-    text-decoration: none;
-    color: black;
+  margin: 0 5px;
+  text-decoration: none;
+  color: black;
 }
 
 .label {
   font-weight: bold;
+}
+
+li {
+  margin: 0;
 }
 
 /* The following style for modal is adapted from bootstrap*/
