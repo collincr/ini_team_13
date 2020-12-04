@@ -1,15 +1,19 @@
 intro_text = """
 **Introduction**
 
-This application is an interactive geospatial data visualization tool for you to explore the gravity anomaly data in California and Nevada.
+This application is an interactive geospatial data visualization tool for you to explore gravity anomaly data in California and Nevada.
 
-Gravity is not the same everywhere on Earth, but changes with many known and measurable factors, such as tidal forces. 
-A sequence of gravity corrections are applied to the original gravity reading and result in various named gravity anomalies. 
-There are mainly four kinds of gravity anomalies: observed gravity anomaly, free air gravity anomaly, Bouguer gravity anomaly, and isostatic gravity anomaly. 
-You can learn more about gravity anomalies from [USGS's publication here](https://pubs.usgs.gov/fs/fs-0239-95/fs-0239-95.pdf).
+Gravity is not the same everywhere on Earth. Geologists are interested in gravity because it tells us about the density of rocks underground. 
+Higher gravity values are found over rocks that are denser, and lower gravity values are found over rocks that are less dense. Variations in gravity help geologists locate faults, mineral or petroleum resources, and groundwater reservoirs.
 
-In this application, you can select different types of visualizations to explore the distribution of gravity anomaly values and the metadata from the stations.
-In addition, you can interact with the map to view the transect or the ranking of the data according to the instructions in each section.
+To use gravity data, geologists look at the “**gravity anomaly**”, which is the result of removing the effects of several known factors, such as tides and the rotation of the Earth, from the original gravity data. 
+There are several different types of gravity anomaly, depending on how the original data were processed:
+* The **observed gravity anomaly** is the result of correcting only for Earth rotation latitude, tidal effects, and instrument fluctuations.
+* The **free air anomaly** has been further corrected for the elevation difference between sea level and the station.
+* The **Bouguer anomaly** has been further corrected for the mass between sea level and the station.
+* The **isostatic anomaly** has been further corrected for the effect of low density in the Earth’s crust beneath high mountains.
+
+To read more about gravity data, you can read [USGS's publication here](https://pubs.usgs.gov/fs/fs-0239-95/fs-0239-95.pdf).
 
 The datasets are sourced from: [National Centers for Environmental Information](https://www.ncei.noaa.gov/), [California’s Open Data website](https://data.ca.gov/), 
 [U.S. General Services Administration](https://www.gsa.gov/), [USGS Mineral Resources Online Spatial Data](https://mrdata.usgs.gov/)
@@ -46,20 +50,21 @@ All the stations are sorted in descending order. (Note: The transect graph will 
 layer_selection_intro_text = """
 You can select any of the different types of visualizations to view on the map. To learn more about these visualization types and how to use the map, click the question mark icon above.
 
-If you choose "Scatter Plot", you can interact with the map by clicking the stations or using the box select tool in the menubar 
+If you choose "Scatter Plot", you can interact with the map by clicking the stations or using the box select tool in the menu bar 
 to visualize the transect and ranking of the selected data on the right side of the page.
 To clear the data you have selected, click the "CLEAR SELECTED DATA" button below.
 """
 
-help_text = """
+layer_selection_helper_text = """
 **Scatter Plot**
 
 The scatter plot displays all the data points in the dataset on the map according to their isostatic anomaly value. 
 It is a direct way to discover all the data points and view the spacial distribution of these points.
 The color of each point is defined by the isostatic anomaly value according to the colorscale.
 
-You can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
-You can also use the "box select" from the menubar at the top of the map to select a set of stations.
+(Tips on usage - You can click on any station on the map to view the transect and the ranking of the gravity anomaly on the right side of the page.
+You can also use the "box select" from the menu bar at the top of the map to select a set of stations. 
+To toggle show metadata when hovering over the points, you can click the rightmost button from the menu bar.)
 
 **Interpolated Plot**
 
@@ -69,9 +74,8 @@ From this plot, you can get a rough idea about the gravity anomaly value of the 
 
 **Spatial Density Heatmap**
 
-In the spatial density map, each data point in the dataset is represented as a point smoothed with a given radius of influence.
-It shows the spatial distribution of the stations that the datasets are collection from.
-You can tell which areas that are sampled more sparsely vs. the areas that are sampled more densely from this map.
+The spatial density map shows the spatial distribution of the stations that the datasets are collection from.
+You can tell which areas that are sampled more sparsely and the areas that are sampled more densely from this map.
 A potential application of this map is to inform viewers which areas should be prioritized for collecting new data.  
 
 **Extra Layer - Quaternary Faults**
@@ -81,12 +85,7 @@ It shows the normal fault, the thrust fault, the strike-slip fault, and some una
 You can make the faults as an extra layer to other visualization types by using the checkbox for "Extra layers".
 To learn more about faults, you can visit [USGS's Faults page](https://www.usgs.gov/natural-hazards/earthquake-hazards/faults).
 
+(Tips on usage - If you want to view the faults data without other layers, you can switch to "Scatter Plot" type and click the "Stations" on the legend above the map to toggle the display of the scatter points.
+Although you can also click on the legends for the faults, it will not have effects on the map due to framework limitations.)
 
-If you want to view the faults data without other layers, you can switch to "Scatter Plot" type and click the "Stations" on the legend above the map to toggle the display of the scatter points.
-Although you can also click on the legends for the faults, it will not have effects on the map due to framework limitations.
-
-**Notes on the usage of the tool**
-
-The "CLEAR SELECTED DATA" button cannot work perfectly when you're toggling among the radio selection buttons due to framework limitations.
-It's better to switch to the type you want to use before clicking the "CLEAR SELECTED DATA" button.
 """
