@@ -1,0 +1,9 @@
+geopandas
+matplotlib
+scipy
+datashader
+plotly
+dash
+dash-bootstrap-components
+geofeather
+gunicorn
